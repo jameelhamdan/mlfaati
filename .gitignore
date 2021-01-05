@@ -54,12 +54,13 @@ coverage.xml
 # Translations
 *.mo
 *.pot
+*.pyc
 
 # Django stuff:
 *.log
-local_settings.py
 db.sqlite3
 db.sqlite3-journal
+local.py
 
 # Flask stuff:
 instance/
@@ -127,3 +128,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.idea/
+
+
+# custom
+media/*
+.static/*
