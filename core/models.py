@@ -1,4 +1,3 @@
-import mimetypes
 import uuid
 import os
 from django.utils.translation import gettext_lazy as _
@@ -44,14 +43,14 @@ class File(LifecycleModelMixin, models.Model):
     content_type = models.CharField(max_length=32, db_index=True)
     content_length = models.IntegerField(default=0)
     content = models.FileField(upload_to=UploadToPathAndRename())
-    folder = models.ForeignKey('Folder', on_delete=models.CASCADE, related_name='files')
+    folder = models.ForeignKey('Folder', on_delete=models.CASCADE, related_name='files', null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
     @hook(BEFORE_CREATE)
     def before_create(self):
         self.name = self.content.name
-        self.content_type = mimetypes.guess_type(self.content.name)[0]
+        self.content_type = self.content.file.content_type
         self.content_length = self.content.size
 
     class Meta:

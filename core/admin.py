@@ -1,4 +1,5 @@
 from django.contrib import admin
+from mptt.admin import MPTTModelAdmin
 from . import models
 
 
@@ -16,8 +17,7 @@ class FileAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Folder)
-class FolderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'parent', 'owner']
+class FolderAdmin(MPTTModelAdmin):
+    list_display = ['name', 'parent', 'owner']
     list_select_related = ['parent', 'owner']
     list_filter = ['name', 'parent', 'owner']
-
