@@ -18,6 +18,6 @@ class FileAdmin(admin.ModelAdmin):
 
 @admin.register(models.Folder)
 class FolderAdmin(MPTTModelAdmin):
-    list_display = ['name', 'parent', 'owner']
+    list_display = ['name', 'full_path', 'owner']
     list_select_related = ['parent', 'owner']
     list_filter = ['name', 'parent', 'owner']
