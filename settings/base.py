@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     # Apps
     'users',
     'core',
-    'processing'
+    'processing',
+    'cdn',
 ]
 
 MIDDLEWARE = [

@@ -2,11 +2,16 @@ import uuid
 import os
 
 from django.contrib.postgres.fields import ArrayField
+from django.db.models import Value, Func, F
+from django.db.models.functions import Concat
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django_lifecycle import LifecycleModelMixin, hook, BEFORE_CREATE, BEFORE_UPDATE, AFTER_UPDATE
 from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.deconstruct import deconstructible
+
+PATH_CONCAT_CHARACTER = '/'
 
 
 @deconstructible
@@ -36,7 +41,7 @@ class Folder(LifecycleModelMixin, MPTTModel):
 
     @property
     def full_path(self):
-        return '/'.join(self.path) + '/'
+        return PATH_CONCAT_CHARACTER.join(self.path) + PATH_CONCAT_CHARACTER
 
     def get_path(self) -> list:
         """
@@ -54,11 +59,11 @@ class Folder(LifecycleModelMixin, MPTTModel):
         # Get initial path of folder
         self.path = self.get_path()
 
-    @hook(BEFORE_UPDATE, when='name', has_changed=True)
+    @hook(BEFORE_UPDATE, when_any=['name', 'parent_id'], has_changed=True)
     def before_update(self):
         self.path = self.get_path()
 
-    @hook(AFTER_UPDATE, when='name', has_changed=True)
+    @hook(AFTER_UPDATE, when_any=['name', 'parent_id'], has_changed=True)
     def after_update(self):
         self.path = self.get_path()
 
@@ -80,6 +85,19 @@ class Folder(LifecycleModelMixin, MPTTModel):
         return self.name
 
 
+class FileQueryset(models.QuerySet):
+    def with_paths(self):
+        return self.annotate(
+            folder_path=Func(
+                F('folder__path'),
+                Value(PATH_CONCAT_CHARACTER),
+                function='ARRAY_TO_STRING',
+                output_field=models.CharField()
+            ),
+            path=Concat('folder_path', Value(PATH_CONCAT_CHARACTER), 'name'),
+        )
+
+
 class File(LifecycleModelMixin, models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
     name = models.CharField(max_length=256, db_index=True)
@@ -90,11 +108,16 @@ class File(LifecycleModelMixin, models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
+    objects = FileQueryset.as_manager()
+
     @hook(BEFORE_CREATE)
     def before_create(self):
         self.name = self.content.name
         self.content_type = self.content.file.content_type
         self.content_length = self.content.size
+
+    def get_absolute_url(self):
+        return reverse('cdn:by_id', kwargs={'pk': self.pk})
 
     class Meta:
         unique_together = ['name', 'folder']
