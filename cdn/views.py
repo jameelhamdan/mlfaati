@@ -1,4 +1,3 @@
-import os
 from urllib.parse import quote
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -9,7 +8,7 @@ import core.models
 
 
 class BaseServeView(SingleObjectMixin, View):
-    queryset = core.models.File.objects.with_paths().select_related('folder')
+    queryset = core.models.File.objects.with_paths().select_related('folder', 'folder__space')
 
     def get_object(self, queryset=None) -> 'core.models.File':
         return get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'])
@@ -47,8 +46,16 @@ class BaseServeView(SingleObjectMixin, View):
 
 class ServeByPathView(BaseServeView):
     def get_object(self, queryset=None):
-        return get_object_or_404(self.get_queryset(), path__exact=self.kwargs['path'])
+        return get_object_or_404(
+            self.get_queryset(),
+            path__exact=self.kwargs['path'],
+            folder__space__name__exact=self.kwargs['space_name']
+        )
 
 
 class ServeByIdView(BaseServeView):
-    pass
+    def get_object(self, queryset=None):
+        space_name = self.kwargs.get('space_name')
+        if space_name:
+            return get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'], folder__space__name__exact=space_name)
+        return super().get_object(queryset=queryset)

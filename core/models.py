@@ -10,6 +10,7 @@ from django.db import models
 from django_lifecycle import LifecycleModelMixin, hook, BEFORE_CREATE, BEFORE_UPDATE, AFTER_UPDATE
 from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.deconstruct import deconstructible
+from common import validators
 
 PATH_CONCAT_CHARACTER = '/'
 
@@ -19,17 +20,33 @@ class UploadToPathAndRename(object):
     def __call__(self, instance: 'File', filename: str) -> str:
         ext = filename.split('.')[-1]
         filename = '%s.%s' % (instance.pk, ext)
-        base_path = str(instance.folder.owner_id)
+        base_path = str(instance.folder.space_id)
         # return the whole path to the file
         return os.path.join(base_path, filename)
+
+
+class Space(LifecycleModelMixin, models.Model):
+    name = models.SlugField(max_length=32, validators=[validators.SpaceNameValidator], unique=True, db_index=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    owner = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='folders')
+
+    class Meta:
+        index_together = [['name', 'owner']]
+        ordering = ['-id']
+        verbose_name = _('Space')
+        verbose_name_plural = _('Spaces')
+        default_permissions = []
+
+    def __str__(self):
+        return self.name
 
 
 class Folder(LifecycleModelMixin, MPTTModel):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
     name = models.CharField(max_length=256, db_index=True)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
-    owner = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='folders')
-
+    space = models.ForeignKey('Space', on_delete=models.CASCADE, related_name='folders')
     path = ArrayField(
         models.CharField(max_length=256),
         help_text=_('to be used when querying files or folders by path instead of the more efficient id'),
@@ -74,8 +91,6 @@ class Folder(LifecycleModelMixin, MPTTModel):
             child.save(update_fields=['path', 'updated_on'])
 
     class Meta:
-        unique_together = ['name', 'parent', 'owner']
-        index_together = [['name', 'path', 'owner']]
         ordering = ['-id']
         verbose_name = _('Folder')
         verbose_name_plural = _('Folders')
