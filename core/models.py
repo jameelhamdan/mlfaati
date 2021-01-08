@@ -2,7 +2,7 @@ import uuid
 import os
 
 from django.contrib.postgres.fields import ArrayField
-from django.db.models import Value, Func, F
+from django.db.models import Value, Func, F, Case, When
 from django.db.models.functions import Concat
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -20,15 +20,15 @@ class UploadToPathAndRename(object):
     def __call__(self, instance: 'File', filename: str) -> str:
         ext = filename.split('.')[-1]
         filename = '%s.%s' % (instance.pk, ext)
-        base_path = str(instance.folder.space_id)
+        base_path = str(instance.space_id)
         # return the whole path to the file
         return os.path.join(base_path, filename)
 
 
 class Space(LifecycleModelMixin, models.Model):
     name = models.SlugField(max_length=32, validators=[validators.SpaceNameValidator], unique=True, db_index=True)
-    created_on = models.DateTimeField(auto_now_add=True)
-    updated_on = models.DateTimeField(auto_now=True)
+    created_on = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_on = models.DateTimeField(auto_now=True, db_index=True)
     owner = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='folders')
 
     class Meta:
@@ -53,8 +53,8 @@ class Folder(LifecycleModelMixin, MPTTModel):
         editable=False, db_index=True
     )
 
-    created_on = models.DateTimeField(auto_now_add=True)
-    updated_on = models.DateTimeField(auto_now=True)
+    created_on = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_on = models.DateTimeField(auto_now=True, db_index=True)
 
     @property
     def full_path(self):
@@ -91,6 +91,8 @@ class Folder(LifecycleModelMixin, MPTTModel):
             child.save(update_fields=['path', 'updated_on'])
 
     class Meta:
+        index_together = [['path', 'space']]
+        unique_together = [['name', 'parent']]
         ordering = ['-id']
         verbose_name = _('Folder')
         verbose_name_plural = _('Folders')
@@ -100,19 +102,6 @@ class Folder(LifecycleModelMixin, MPTTModel):
         return self.name
 
 
-class FileQueryset(models.QuerySet):
-    def with_paths(self):
-        return self.annotate(
-            folder_path=Func(
-                F('folder__path'),
-                Value(PATH_CONCAT_CHARACTER),
-                function='ARRAY_TO_STRING',
-                output_field=models.CharField()
-            ),
-            path=Concat('folder_path', Value(PATH_CONCAT_CHARACTER), 'name'),
-        )
-
-
 class File(LifecycleModelMixin, models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
     name = models.CharField(max_length=256, db_index=True)
@@ -120,10 +109,16 @@ class File(LifecycleModelMixin, models.Model):
     content_length = models.IntegerField(default=0)
     content = models.FileField(upload_to=UploadToPathAndRename())
     folder = models.ForeignKey('Folder', on_delete=models.CASCADE, related_name='files', null=True, blank=True)
-    created_on = models.DateTimeField(auto_now_add=True)
-    updated_on = models.DateTimeField(auto_now=True)
+    space = models.ForeignKey('Space', on_delete=models.CASCADE, related_name='files')
+    created_on = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_on = models.DateTimeField(auto_now=True, db_index=True)
 
-    objects = FileQueryset.as_manager()
+    def get_path(self):
+        folder_path = []
+        if self.folder:
+            folder_path = self.folder.path
+
+        return PATH_CONCAT_CHARACTER.join(folder_path + [self.name])
 
     @hook(BEFORE_CREATE)
     def before_create(self):
@@ -135,8 +130,8 @@ class File(LifecycleModelMixin, models.Model):
         return reverse('cdn:by_id', kwargs={'pk': self.pk})
 
     class Meta:
-        unique_together = ['name', 'folder']
-        index_together = [['name', 'folder']]
+        unique_together = [['name', 'folder']]
+        index_together = [['name', 'folder'], ['name', 'folder', 'space']]
         ordering = ['-id']
         verbose_name = _('File')
         verbose_name_plural = _('Files')

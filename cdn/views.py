@@ -8,7 +8,7 @@ import core.models
 
 
 class BaseServeView(SingleObjectMixin, View):
-    queryset = core.models.File.objects.with_paths().select_related('folder', 'folder__space')
+    queryset = core.models.File.objects.select_related('folder', 'space')
 
     def get_object(self, queryset=None) -> 'core.models.File':
         return get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'])
@@ -46,10 +46,20 @@ class BaseServeView(SingleObjectMixin, View):
 
 class ServeByPathView(BaseServeView):
     def get_object(self, queryset=None):
+        path_list = self.kwargs['path'].split(core.models.PATH_CONCAT_CHARACTER)
+        if len(path_list) == 0:
+            raise core.models.File.DoesNotExist()
+
+        file_name = path_list.pop()
+        qs = self.get_queryset()
+
+        if len(path_list) > 0:
+            qs = qs.filter(folder__path__exact=path_list)
+        else:
+            qs = qs.filter(folder__isnull=True)
+
         return get_object_or_404(
-            self.get_queryset(),
-            path__exact=self.kwargs['path'],
-            folder__space__name__exact=self.kwargs['space_name']
+            qs, name=file_name, space__name__exact=self.kwargs['space_name']
         )
 
 
@@ -57,5 +67,5 @@ class ServeByIdView(BaseServeView):
     def get_object(self, queryset=None):
         space_name = self.kwargs.get('space_name')
         if space_name:
-            return get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'], folder__space__name__exact=space_name)
+            return get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'], space__name__exact=space_name)
         return super().get_object(queryset=queryset)
