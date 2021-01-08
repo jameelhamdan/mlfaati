@@ -1,0 +1,72 @@
+{% load static %}
+{% load i18n %}
+<!--
+
+=========================================================
+* Volt - Bootstrap 5 Admin Dashboard
+=========================================================
+
+* Product Page: https://themesberg.com/product/admin-dashboard/volt-bootstrap-5-dashboard
+* Copyright 2020 Themesberg (https://www.themesberg.com)
+
+* Designed and coded by https://themesberg.com
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. Please contact us to request a removal.
+
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <!-- Primary Meta Tags -->
+    <title>{% block page_title %}{{ page_title }}{% endblock %} | {{ SITE_NAME }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="title" content="{{ SITE_NAME }} - {{ SITE_DESCRIPTION }}">
+    <meta name="author" content="{{ AUTHOR }}">
+
+    <!-- Favicon -->
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+
+
+    <!-- Main CSS -->
+    <link type="text/css" href="{% static 'fonts/feather/feather.css' %}" rel="stylesheet">
+    <link type="text/css" href="{% static 'css/main.css' %}" rel="stylesheet">
+    <link type="text/css" href="{% static 'css/custom.css' %}" rel="stylesheet">
+
+    {% block css %}
+        {{ block.super }}
+    {% endblock %}
+
+</head>
+<body>
+
+<main class="content">
+    {% block page_content %}
+        {% include '_header.html' %}
+        <div class="row justify-content-center">
+            <div class="col">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+        {% include '_footer.html' %}
+    {% endblock %}
+</main>
+
+<!-- Core -->
+<script src="{% static 'vendor/popper.js/dist/umd/popper.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+
+<script src="{% static 'vendor/onscreen/dist/on-screen.umd.min.js' %}"></script>
+<script src="{% static 'vendor/smooth-scroll/dist/smooth-scroll.polyfills.min.js' %}"></script>
+<!-- Main JS -->
+<script src="{% static 'js/main.js' %}"></script>
+
+{% block javascript %}
+    {{ block.super }}
+{% endblock %}
+</body>
+</html>

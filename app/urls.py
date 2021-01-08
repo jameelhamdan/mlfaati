@@ -10,5 +10,6 @@ if settings.DEBUG:
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('cdn/', include('cdn.urls'))
+    path('cdn/', include('cdn.urls')),
+    path('console/', include('console.urls'))
 ] + debug_urls

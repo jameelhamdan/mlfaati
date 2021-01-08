@@ -1,0 +1,66 @@
+{% load static %}
+{% load i18n %}
+{% load menu_generator %}
+
+<nav class="navbar navbar-top navbar-expand navbar-dashboard navbar-light fixed-top pl-0 pr-2 pb-0" id="topNavbar">
+    <div class="container-fluid px-0">
+        <div class="d-flex justify-content-between w-100" id="navbarSupportedContent">
+            <div class="d-flex">
+                <a class="navbar-brand mr-lg-3" href="#">
+                    <img class="navbar-brand-dark" src="{% static 'img/brand/light.svg' %}" alt="logo"/>
+                    <img class="navbar-brand-light" src="{% static 'img/brand/dark.svg' %}" alt="logo"/>
+                </a>
+                <ul class="navbar-nav align-items-start">
+                    {% get_menu "MAIN_NAV" as top_menu %}
+                    {% for item in top_menu %}
+                        <li class="nav-item {% if item.selected %} active {% endif %}">
+                            <a class="nav-link text-dark" href="{{ item.url }}">
+                                <span><i class="{{ item.icon_class }}"></i> {{ item.name }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <!-- Navbar links -->
+            <ul class="navbar-nav align-items-center">
+                <li class="nav-item dropdown">
+                    <a class="nav-link pt-1 px-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <div class="media d-flex align-items-center">
+                            <img class="user-avatar md-avatar rounded-circle" alt="Image placeholder" src="{% static 'img/profile-picture.jpg' %}">
+                            <div class="media-body ml-2 text-dark align-items-center d-none d-lg-block">
+                                <span class="mb-0 font-small font-weight-bold">{{ request.user }}</span>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="dropdown-menu dashboard-dropdown dropdown-menu-right mt-2">
+                        <a class="dropdown-item font-weight-bold" href="#"><span class="far fa-user-circle"></span>My Profile</a>
+                        <a class="dropdown-item font-weight-bold" href="#"><span class="fas fa-cog"></span>Settings</a>
+                        <a class="dropdown-item font-weight-bold" href="#"><span class="fas fa-sign-out-alt text-danger"></span>Logout</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{% if breadcrumbs %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div class="d-block mb-4 mb-md-0">
+        <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+            <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'console:home' %}"><span class="ft-home"></span></a>
+                </li>
+                {% for title, href in breadcrumbs %}
+                    <i class="ft-chevron-right px-1" style="padding-top: 0.15rem"></i>
+                    {% if forloop.last %}
+                        <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+                    {% else %}
+                        <li class="breadcrumb-item"><a href="{{ href }}">{{ title }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ol>
+        </nav>
+    </div>
+</div>
+{% endif %}

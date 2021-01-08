@@ -1,0 +1,10 @@
+#topNavbar {
+    padding: 0.625rem 1rem 0rem 1rem !important;
+    background: #f5f8fb;
+    border-bottom: 1px solid rgba(46, 54, 80, 0.125);
+    border-radius: 0;
+}
+
+main.content {
+    padding-top: 70px !important;
+}

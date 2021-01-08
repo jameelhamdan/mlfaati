@@ -2,8 +2,6 @@ import uuid
 import os
 
 from django.contrib.postgres.fields import ArrayField
-from django.db.models import Value, Func, F, Case, When
-from django.db.models.functions import Concat
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.db import models
