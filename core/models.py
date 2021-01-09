@@ -1,14 +1,16 @@
 import uuid
 import os
-
+from datetime import timedelta
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django_lifecycle import LifecycleModelMixin, hook, BEFORE_CREATE, BEFORE_UPDATE, AFTER_UPDATE
-from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.deconstruct import deconstructible
-from common import validators
+from mptt.models import MPTTModel, TreeForeignKey
+
+from app import config
+from common import validators, crypt
 
 PATH_CONCAT_CHARACTER = '/'
 
@@ -41,16 +43,23 @@ class Space(LifecycleModelMixin, models.Model):
 
 
 class Folder(LifecycleModelMixin, MPTTModel):
+    class PRIVACY(models.TextChoices):
+        PUBLIC = 'PUBLIC', _('Public')
+        PRIVATE = 'PRIVATE', _('Private')
+
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
     name = models.CharField(max_length=256, db_index=True)
-    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
-    space = models.ForeignKey('Space', on_delete=models.CASCADE, related_name='folders')
+    parent: 'Folder' = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    space: 'Space' = models.ForeignKey('Space', on_delete=models.CASCADE, related_name='folders')
     path = ArrayField(
         models.CharField(max_length=256),
         help_text=_('to be used when querying files or folders by path instead of the more efficient id'),
         editable=False, db_index=True
     )
-
+    privacy = models.CharField(
+        max_length=10, choices=PRIVACY.choices, default=PRIVACY.PUBLIC, db_index=True,
+        help_text=_('Whether the direct descendants (not files inside subfolders) inside the folder can ')
+    )
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
 
@@ -73,13 +82,24 @@ class Folder(LifecycleModelMixin, MPTTModel):
     def before_create(self):
         # Get initial path of folder
         self.path = self.get_path()
+        if self.parent:
+            # Inherit parent privacy settings by default
+            self.privacy = self.parent.privacy
+
+    @hook(BEFORE_UPDATE, when_any=['privacy'], has_changed=True)
+    def before_privacy_update(self):
+        pass
+
+    @hook(AFTER_UPDATE, when_any=['privacy'], has_changed=True)
+    def after_privacy_update(self):
+        pass
 
     @hook(BEFORE_UPDATE, when_any=['name', 'parent_id'], has_changed=True)
-    def before_update(self):
+    def before_name_or_parent_update(self):
         self.path = self.get_path()
 
     @hook(AFTER_UPDATE, when_any=['name', 'parent_id'], has_changed=True)
-    def after_update(self):
+    def after_name_or_parent_update(self):
         self.path = self.get_path()
 
         # TODO: This is obviously way too slow, so do it in a faster way later
@@ -125,7 +145,22 @@ class File(LifecycleModelMixin, models.Model):
         self.content_length = self.content.size
 
     def get_absolute_url(self):
-        return reverse('cdn:by_id', kwargs={'pk': self.pk})
+        url = reverse('cdn:by_id', kwargs={'pk': self.pk})
+
+        if self.folder and self.folder.privacy == self.folder.PRIVACY.PRIVATE:
+            return '%s?%s=%s' % (url, config.PRIVATE_FILE_GET_PARAM, self.get_access_token(5))
+
+        return url
+
+    def get_access_token(self, minutes: int = 1440) -> str:
+        """
+        Create unconditional access token for x minutes
+        :param minutes: int number of minutes to allow access to private file
+        :return:
+        """
+        return crypt.encode_token({
+            'uuid': str(self.pk),
+        }, timedelta(minutes=minutes))
 
     class Meta:
         unique_together = [['name', 'folder']]

@@ -3,18 +3,37 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.views import View
 from django.views.generic.detail import SingleObjectMixin
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpResponse, Http404
 import core.models
+from app import config
+import common.crypt
 
 
 class BaseServeView(SingleObjectMixin, View):
     queryset = core.models.File.objects.select_related('folder', 'space')
 
+    def check_privacy(self, obj):
+        # Check for private file
+        # TODO: improve this check somehow
+        if obj.folder.privacy == core.models.Folder.PRIVACY.PRIVATE:
+            token = self.request.GET.get(config.PRIVATE_FILE_GET_PARAM)
+            if not token or len(token) == 0:
+                raise Http404()
+
+            try:
+                data = common.crypt.verify_token(token)
+            except common.crypt.jwt_exceptions.PyJWTError as e:
+                raise Http404() from e
+            if data['uuid'] != str(obj.pk):
+                raise Http404()
+
+        return obj
+
     def get_object(self, queryset=None) -> 'core.models.File':
         return get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'])
 
     def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        self.object = self.check_privacy(self.get_object())
         file = self.object.content
         file_name = self.object.name
         file_path = self.object.content.url
