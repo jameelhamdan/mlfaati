@@ -6,26 +6,22 @@ from django.views.generic.detail import SingleObjectMixin
 from django.http import FileResponse, HttpResponse, Http404
 import core.models
 from app import config
-import common.crypt
 
 
 class BaseServeView(SingleObjectMixin, View):
     queryset = core.models.File.objects.select_related('folder', 'space')
 
-    def check_privacy(self, obj):
+    def check_privacy(self, obj: 'core.models.File'):
         # Check for private file
-        # TODO: improve this check somehow
-        if obj.folder.privacy == core.models.Folder.PRIVACY.PRIVATE:
+        if obj.space.privacy == core.models.Space.PRIVACY.PRIVATE:
             token = self.request.GET.get(config.PRIVATE_FILE_GET_PARAM)
             if not token or len(token) == 0:
                 raise Http404()
 
             try:
-                data = common.crypt.verify_token(token)
-            except common.crypt.jwt_exceptions.PyJWTError as e:
+                obj.verify_access_token(token)
+            except core.models.FileAccessError as e:
                 raise Http404() from e
-            if data['uuid'] != str(obj.pk):
-                raise Http404()
 
         return obj
 

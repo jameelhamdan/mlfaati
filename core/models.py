@@ -15,6 +15,10 @@ from common import validators, crypt
 PATH_CONCAT_CHARACTER = '/'
 
 
+class FileAccessError(Exception):
+    pass
+
+
 @deconstructible
 class UploadToPathAndRename(object):
     def __call__(self, instance: 'File', filename: str) -> str:
@@ -26,6 +30,15 @@ class UploadToPathAndRename(object):
 
 
 class Space(LifecycleModelMixin, models.Model):
+    class PRIVACY(models.TextChoices):
+        PUBLIC = 'PUBLIC', _('Public')
+        PRIVATE = 'PRIVATE', _('Private')
+
+    privacy = models.CharField(
+        max_length=10, choices=PRIVACY.choices, default=PRIVACY.PUBLIC, db_index=True,
+        help_text=_('Whether files inside space can be accessed publicly')
+    )
+
     name = models.SlugField(max_length=32, validators=[validators.SpaceNameValidator], unique=True, db_index=True)
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
@@ -43,10 +56,6 @@ class Space(LifecycleModelMixin, models.Model):
 
 
 class Folder(LifecycleModelMixin, MPTTModel):
-    class PRIVACY(models.TextChoices):
-        PUBLIC = 'PUBLIC', _('Public')
-        PRIVATE = 'PRIVATE', _('Private')
-
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
     name = models.CharField(max_length=256, db_index=True)
     parent: 'Folder' = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
@@ -56,10 +65,7 @@ class Folder(LifecycleModelMixin, MPTTModel):
         help_text=_('to be used when querying files or folders by path instead of the more efficient id'),
         editable=False, db_index=True
     )
-    privacy = models.CharField(
-        max_length=10, choices=PRIVACY.choices, default=PRIVACY.PUBLIC, db_index=True,
-        help_text=_('Whether the direct descendants (not files inside subfolders) inside the folder can ')
-    )
+
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
 
@@ -82,17 +88,6 @@ class Folder(LifecycleModelMixin, MPTTModel):
     def before_create(self):
         # Get initial path of folder
         self.path = self.get_path()
-        if self.parent:
-            # Inherit parent privacy settings by default
-            self.privacy = self.parent.privacy
-
-    @hook(BEFORE_UPDATE, when_any=['privacy'], has_changed=True)
-    def before_privacy_update(self):
-        pass
-
-    @hook(AFTER_UPDATE, when_any=['privacy'], has_changed=True)
-    def after_privacy_update(self):
-        pass
 
     @hook(BEFORE_UPDATE, when_any=['name', 'parent_id'], has_changed=True)
     def before_name_or_parent_update(self):
@@ -147,8 +142,8 @@ class File(LifecycleModelMixin, models.Model):
     def get_absolute_url(self):
         url = reverse('cdn:by_id', kwargs={'pk': self.pk})
 
-        if self.folder and self.folder.privacy == self.folder.PRIVACY.PRIVATE:
-            return '%s?%s=%s' % (url, config.PRIVATE_FILE_GET_PARAM, self.get_access_token(5))
+        if self.space.privacy == self.space.PRIVACY.PRIVATE:
+            return '%s?%s=%s' % (url, config.PRIVATE_FILE_GET_PARAM, self.get_access_token(15))
 
         return url
 
@@ -156,11 +151,24 @@ class File(LifecycleModelMixin, models.Model):
         """
         Create unconditional access token for x minutes
         :param minutes: int number of minutes to allow access to private file
-        :return:
+        :return: Base64 encoded token
         """
         return crypt.encode_token({
             'uuid': str(self.pk),
+            'space_id': str(self.space_id),
         }, timedelta(minutes=minutes))
+
+    def verify_access_token(self, token):
+        """
+        Check whether token is valid for this File
+        :param token: Base64 encoded Token from get_access_token
+        """
+        try:
+            data = crypt.verify_token(token)
+        except crypt.jwt_exceptions.PyJWTError as e:
+            raise FileAccessError() from e
+        if data['uuid'] != str(self.pk) or data['space_id'] != str(self.space_id):
+            raise FileAccessError()
 
     class Meta:
         unique_together = [['name', 'folder']]

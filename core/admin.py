@@ -6,7 +6,7 @@ from . import models
 
 @admin.register(models.Space)
 class SpaceAdmin(admin.ModelAdmin):
-    list_display = ['name', 'owner']
+    list_display = ['name', 'owner', 'privacy']
     list_select_related = ['owner']
     list_filter = ['owner']
     search_fields = ['name']
@@ -14,7 +14,7 @@ class SpaceAdmin(admin.ModelAdmin):
 
 @admin.register(models.Folder)
 class FolderAdmin(MPTTModelAdmin):
-    list_display = ['name', 'full_path', 'space', 'privacy']
+    list_display = ['name', 'full_path', 'space']
     list_select_related = ['parent', 'space']
     list_filter = ['name', 'parent', 'space']
     search_fields = ['name']
