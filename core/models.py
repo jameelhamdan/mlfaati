@@ -29,6 +29,11 @@ class UploadToPathAndRename(object):
         return os.path.join(base_path, filename)
 
 
+class SpaceQueryset(models.QuerySet):
+    def owned(self, user):
+        return self.filter(owner_id=user.pk)
+
+
 class Space(LifecycleModelMixin, models.Model):
     class PRIVACY(models.TextChoices):
         PUBLIC = 'PUBLIC', _('Public')
@@ -43,6 +48,8 @@ class Space(LifecycleModelMixin, models.Model):
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
     owner = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='folders')
+
+    objects = SpaceQueryset.as_manager()
 
     class Meta:
         index_together = [['name', 'owner']]
