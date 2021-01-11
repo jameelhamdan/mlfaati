@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django_lifecycle import LifecycleModelMixin, hook, BEFORE_CREATE, BEFORE_UPDATE, AFTER_UPDATE
 from django.utils.deconstruct import deconstructible
-from mptt.models import MPTTModel, TreeForeignKey
+from tree_queries.models import TreeNode, TreeNodeForeignKey
 
 from app import config
 from common import validators, crypt
@@ -55,10 +55,11 @@ class Space(LifecycleModelMixin, models.Model):
         return self.name
 
 
-class Folder(LifecycleModelMixin, MPTTModel):
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
+class Folder(LifecycleModelMixin, TreeNode):
     name = models.CharField(max_length=256, db_index=True)
-    parent: 'Folder' = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    parent: 'Folder' = TreeNodeForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True, related_name='children'
+    )
     space: 'Space' = models.ForeignKey('Space', on_delete=models.CASCADE, related_name='folders')
     path = ArrayField(
         models.CharField(max_length=256),
@@ -80,7 +81,7 @@ class Folder(LifecycleModelMixin, MPTTModel):
         """
         path = []
         if self.parent:
-            path = [a.name for a in self.parent.get_ancestors(include_self=True)]
+            path = [a.name for a in self.parent.ancestors(include_self=True)]
 
         return path + [self.name]
 
@@ -99,7 +100,7 @@ class Folder(LifecycleModelMixin, MPTTModel):
 
         # TODO: This is obviously way too slow, so do it in a faster way later
         # update path of children to reflect new parent
-        for child in self.get_descendants():
+        for child in self.descendants().iterator():
             child.path = child.get_path()
             child.save(update_fields=['path', 'updated_on'])
 
@@ -121,7 +122,7 @@ class File(LifecycleModelMixin, models.Model):
     content_type = models.CharField(max_length=32, db_index=True)
     content_length = models.IntegerField(default=0)
     content = models.FileField(upload_to=UploadToPathAndRename())
-    folder = models.ForeignKey('Folder', on_delete=models.CASCADE, related_name='files', null=True, blank=True)
+    folder: 'Folder' = TreeNodeForeignKey('Folder', on_delete=models.CASCADE, related_name='files', null=True, blank=True)
     space = models.ForeignKey('Space', on_delete=models.CASCADE, related_name='files')
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
@@ -131,7 +132,7 @@ class File(LifecycleModelMixin, models.Model):
         if self.folder:
             folder_path = self.folder.path
 
-        return PATH_CONCAT_CHARACTER.join(folder_path + [self.name])
+        return PATH_CONCAT_CHARACTER.join([self.space.name] + folder_path + [self.name])
 
     @hook(BEFORE_CREATE)
     def before_create(self):

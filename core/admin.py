@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from mptt.admin import MPTTModelAdmin
 from . import models
 
 
@@ -13,7 +12,7 @@ class SpaceAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Folder)
-class FolderAdmin(MPTTModelAdmin):
+class FolderAdmin(admin.ModelAdmin):
     list_display = ['name', 'full_path', 'space']
     list_select_related = ['parent', 'space']
     list_filter = ['name', 'parent', 'space']
