@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'crispy_forms',
     'menu_generator',
-    'mptt',
 
     # Apps
     'users',
