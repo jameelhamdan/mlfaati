@@ -48,7 +48,12 @@
     {% block page_content %}
         {% include '_header.html' %}
         <div class="row justify-content-center">
-            <div class="col">
+            <div class="col-12">
+                {% block messages %}
+                    {% include '_messages.html' %}
+                {% endblock %}
+            </div>
+            <div class="col-12">
                 {% block content %}{% endblock %}
             </div>
         </div>

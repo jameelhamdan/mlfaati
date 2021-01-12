@@ -2,5 +2,23 @@
 {% load static %}
 {% load i18n %}
 {% block content %}
-<div class="row"></div>
+    <div class="row">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-4">
+            <div class="d-block mb-4 mb-md-0">
+                <h2 class="h4">{% blocktrans %} Console - <b><i>{{ space }}</i></b> Space{% endblocktrans %}</h2>
+                <p class="mb-0">{% trans 'You can manage your space files here' %}</p>
+            </div>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <div class="btn-group ml-3">
+                    <a href="{% url 'console:space_update' pk=space.pk %}" title="{% trans 'Space Settings' %}" class="btn btn-sm btn-outline-primary">
+                        <i class="ft-settings"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.runtime.global.js"></script>
+    <script src="{% static 'js/browser.js' %}"></script>
 {% endblock %}
