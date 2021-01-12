@@ -1,16 +1,19 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load i18n %}
-
-
-{% block page_title %}{% trans 'Console' %}{% endblock %}
 {% block content %}
-<div class="card">
-    <div class="card-header bg-transparent">
-        <h3 class="mb-0">{% trans 'Console' %}</h3>
+
+<div class="row">
+    {% for space in spaces_list %}
+    <div class="col-12 col-sm-6 col-md-4">
+        <div class="card border-light shadow-sm">
+            <div class="card-body">
+                <h2 class="h5"><a href="{% url 'console:browse_space' pk=space.pk %}">{{ space }}</a></h2>
+                <h3 class="h2 mb-1">{{ space.files_count }} {% trans 'Files' %}</h3>
+                <div class="small mb-3">{{ space.files_total_size|filesizeformat }}</div>
+            </div>
+        </div>
     </div>
-    <div class="card-body" data-id="{% url 'console:api_browser_folder' pk='0' folder_id='0' %}">
-        Hello World
-    </div>
+    {% endfor %}
 </div>
 {% endblock %}

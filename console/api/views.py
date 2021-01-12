@@ -18,9 +18,9 @@ class BaseBrowserView(generics.GenericAPIView):
     def get_object(self):
         return get_object_or_404(core.models.Space.objects.owned(self.request.user), pk=self.kwargs['pk'])
 
-    def retrieve(self, space, folder, *args, **kwargs):
+    def retrieve(self, space: 'core.models.Space', folder: 'core.models.Folder', *args, **kwargs):
         folder_data = self.folder_serializer_class(folder).data if folder else None
-
+        folder_ancestors_data = self.folder_serializer_class(folder.ancestors(), many=True).data if folder else []
         list_folders_data = self.folder_serializer_class(
             core.models.Folder.objects.filter(space=space, parent=folder),
             many=True
@@ -32,7 +32,10 @@ class BaseBrowserView(generics.GenericAPIView):
         ).data
 
         return response.Response({
-            'current_folder': folder_data,
+            'current_folder': {
+                'folder': folder_data,
+                'ancestors': folder_ancestors_data,
+            },
             'folders': list_folders_data,
             'files': list_files_data,
         })
