@@ -20,3 +20,5 @@ main .main-content {
 main footer.footer {
   flex-shrink: unset;
 }
+
+[v-cloak] {display: none}
