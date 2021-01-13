@@ -24,7 +24,7 @@
                     <div class="row align-items-center">
                         <div class="col">
                             <h2 class="h5">
-                                <a @click="openFolder(null)">{% trans 'Root' %} / </a>
+                                <a @click="openFolder(null)">/ </a>
                                 <a @click="openFolder(folder)" v-if="currentFolder" v-for="folder in currentFolder.ancestors">[[ folder.name ]] / </a>
                                 <a @click="openFolder(currentFolder)" v-if="currentFolder">[[ currentFolder.name ]] /</a>
                             </h2>
@@ -48,7 +48,7 @@
                         <tbody>
                         <tr v-if="currentFolder">
                             <td>#</td>
-                            <td><a @click="openFolder(currentFolder.previous)"><i class="ft-folder"></i> ../</a></td>
+                            <td><a @click="openFolder(currentFolder.previous)"><i class="ft-folder"></i> ..</a></td>
                             <td>Folder</td>
                             <td></td>
                             <td></td>
