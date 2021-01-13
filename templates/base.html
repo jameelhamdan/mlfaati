@@ -1,5 +1,8 @@
 {% load static %}
 {% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
 <!--
 
 =========================================================
@@ -8,7 +11,6 @@
 
 * Product Page: https://themesberg.com/product/admin-dashboard/volt-bootstrap-5-dashboard
 * Copyright 2020 Themesberg (https://www.themesberg.com)
-
 * Designed and coded by https://themesberg.com
 
 =========================================================
@@ -16,9 +18,6 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. Please contact us to request a removal.
 
 -->
-<!DOCTYPE html>
-<html lang="en">
-
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <!-- Primary Meta Tags -->
@@ -43,18 +42,25 @@
 
 </head>
 <body>
-
-<main class="content">
+<main class="content d-flex flex-column">
     {% block page_content %}
-        {% include '_header.html' %}
-        <div class="row justify-content-center">
-            <div class="col">
-                {% block content %}{% endblock %}
+        <div class="main-content">
+            {% include '_header.html' %}
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    {% block messages %}
+                        {% include '_messages.html' %}
+                    {% endblock %}
+                </div>
+                <div class="col-12">
+                    {% block content %}{% endblock %}
+                </div>
             </div>
         </div>
         {% include '_footer.html' %}
     {% endblock %}
 </main>
+
 
 <!-- Core -->
 <script src="{% static 'vendor/popper.js/dist/umd/popper.min.js' %}"></script>
@@ -63,6 +69,10 @@
 <script src="{% static 'vendor/onscreen/dist/on-screen.umd.min.js' %}"></script>
 <script src="{% static 'vendor/smooth-scroll/dist/smooth-scroll.polyfills.min.js' %}"></script>
 <!-- Main JS -->
+<script src="{% static 'vendor/axios/axios.min.js' %}">
+    axios.defaults.xsrfCookieName = 'csrftoken';
+    axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
+</script>
 <script src="{% static 'js/main.js' %}"></script>
 
 {% block javascript %}

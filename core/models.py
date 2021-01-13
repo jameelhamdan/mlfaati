@@ -39,6 +39,15 @@ class Space(LifecycleModelMixin, models.Model):
         PUBLIC = 'PUBLIC', _('Public')
         PRIVATE = 'PRIVATE', _('Private')
 
+        @staticmethod
+        def as_dict():
+            cls = Space.PRIVACY
+            return {
+                cls.PUBLIC.name: cls.PUBLIC.value,
+                cls.PRIVATE.name: cls.PRIVATE.value,
+            }
+
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
     privacy = models.CharField(
         max_length=10, choices=PRIVACY.choices, default=PRIVACY.PUBLIC, db_index=True,
         help_text=_('Whether files inside space can be accessed publicly')

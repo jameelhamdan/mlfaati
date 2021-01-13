@@ -1,12 +1,18 @@
 from rest_framework import generics, response
 from django.urls import path
 from rest_framework.generics import get_object_or_404
-
+from sql_util.aggregates import SubqueryCount, SubquerySum
 import core.models
 from . import serializers
 
 
 class BaseBrowserView(generics.GenericAPIView):
+    folders_queryset = core.models.Folder.objects.annotate(
+        files_count=SubqueryCount('files'),
+        files_total_size=SubquerySum('files__content_length'),
+    )
+    files_queryset = core.models.File.objects.all()
+
     folder_serializer_class = serializers.FolderSerializer
     file_serializer_class = serializers.FileSerializer
     http_method_names = ['get']
@@ -18,16 +24,20 @@ class BaseBrowserView(generics.GenericAPIView):
     def get_object(self):
         return get_object_or_404(core.models.Space.objects.owned(self.request.user), pk=self.kwargs['pk'])
 
-    def retrieve(self, space, folder, *args, **kwargs):
+    def retrieve(self, space: 'core.models.Space', folder: ['core.models.Folder', None], *args, **kwargs):
         folder_data = self.folder_serializer_class(folder).data if folder else None
 
+        if folder_data:
+            folder_ancestors_data = self.folder_serializer_class(folder.ancestors(), many=True).data
+            folder_data['ancestors'] = folder_ancestors_data
+
         list_folders_data = self.folder_serializer_class(
-            core.models.Folder.objects.filter(space=space, parent=folder),
+            self.folders_queryset.filter(space=space, parent=folder),
             many=True
         ).data
 
         list_files_data = self.file_serializer_class(
-            core.models.File.objects.filter(space=space, folder=folder),
+            self.files_queryset.filter(space=space, folder=folder),
             many=True
         ).data
 
@@ -50,7 +60,7 @@ class FolderBrowserView(BaseBrowserView):
     Gets Folder level direct folders and files descendents
     """
     def get_folder_object(self):
-        return get_object_or_404(core.models.Folder.objects, space_id=self.kwargs['pk'], pk=self.kwargs['folder_id'])
+        return get_object_or_404(self.folders_queryset, space_id=self.kwargs['pk'], pk=self.kwargs['folder_id'])
 
     def get(self, *args, **kwargs):
         space = self.get_object()
@@ -59,6 +69,6 @@ class FolderBrowserView(BaseBrowserView):
 
 
 urlpatterns = [
-    path('browser/<int:pk>', BaseBrowserView.as_view(), name='api_browser'),
-    path('browser/<int:pk>/<int:folder_id>', FolderBrowserView.as_view(), name='api_browser_folder'),
+    path('browser/<str:pk>', BaseBrowserView.as_view(), name='api_browser'),
+    path('browser/<str:pk>/<int:folder_id>', FolderBrowserView.as_view(), name='api_browser_folder'),
 ]

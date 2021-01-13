@@ -1,16 +1,42 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load i18n %}
-
-
-{% block page_title %}{% trans 'Console' %}{% endblock %}
 {% block content %}
-<div class="card">
-    <div class="card-header bg-transparent">
-        <h3 class="mb-0">{% trans 'Console' %}</h3>
+<div class="row">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-4">
+        <div class="d-block mb-4 mb-md-0">
+            <h2 class="h4">{% blocktrans %}Console - My Spaces{% endblocktrans %}</h2>
+            <p class="mb-0">{% trans 'You can see all your spaces here.' %}</p>
+        </div>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group ml-3">
+                <a href="{% url 'console:space_create' %}" class="btn btn-sm btn-success">
+                    <i class="ft-plus"></i> {% trans 'New Space' %}
+                </a>
+            </div>
+        </div>
     </div>
-    <div class="card-body" data-id="{% url 'console:api_browser_folder' pk='0' folder_id='0' %}">
-        Hello World
+</div>
+<div class="row">
+    {% for space in spaces_list %}
+    <div class="col-12 col-md-6 col-lg-4 my-2">
+        <div class="card border-light shadow-sm">
+            <div class="card-body d-flex">
+                <div class="w-100">
+                    <h2 class="h5"><a class="link-dark" href="{% url 'console:space_browse' pk=space.pk %}">{{ space }}</a></h2>
+                    <h3 class="h2 mb-1">{{ space.files_count }} {% trans 'Files' %}</h3>
+                    <div class="small mb-3">{{ space.files_total_size|filesizeformat }}</div>
+                </div>
+                <div class="flex-shrink-1 ft-5x d-flex align-items-center justify-content-center">
+                    {% if space.privacy == PRIVACY.PUBLIC %}
+                        <i title="{{ space.get_privacy_display }}" class="text-success ft-unlock"></i>
+                    {% elif space.privacy == PRIVACY.PRIVATE %}
+                        <i title="{{ space.get_privacy_display }}" class="text-warning ft-lock"></i>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
+    {% endfor %}
 </div>
 {% endblock %}
