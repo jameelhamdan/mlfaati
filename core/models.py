@@ -47,6 +47,7 @@ class Space(LifecycleModelMixin, models.Model):
                 cls.PRIVATE.name: cls.PRIVATE.value,
             }
 
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
     privacy = models.CharField(
         max_length=10, choices=PRIVACY.choices, default=PRIVACY.PUBLIC, db_index=True,
         help_text=_('Whether files inside space can be accessed publicly')

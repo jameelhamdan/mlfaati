@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Space',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)),
                 ('privacy', models.CharField(choices=[('PUBLIC', 'Public'), ('PRIVATE', 'Private')], db_index=True, default='PUBLIC', help_text='Whether files inside space can be accessed publicly', max_length=10)),
                 ('name', models.SlugField(max_length=32, unique=True, validators=[common.validators.SpaceNameValidator])),
                 ('created_on', models.DateTimeField(auto_now_add=True, db_index=True)),

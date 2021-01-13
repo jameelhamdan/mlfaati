@@ -5,6 +5,18 @@
     border-radius: 0;
 }
 
+main {
+    min-height: 100vh;
+}
+
 main.content {
     padding-top: 70px !important;
+}
+
+main .main-content {
+  flex: 1 0 auto;
+}
+
+main footer.footer {
+  flex-shrink: unset;
 }
