@@ -9,7 +9,7 @@ from app import config
 
 
 class BaseServeView(SingleObjectMixin, View):
-    queryset = core.models.File.objects.select_related('folder', 'space')
+    queryset = core.models.File.objects.select_related('space', 'folder')
 
     def check_privacy(self, obj: 'core.models.File'):
         # Check for private file

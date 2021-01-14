@@ -46,13 +46,13 @@
     {% block page_content %}
         <div class="main-content">
             {% include '_header.html' %}
-            <div class="row justify-content-center">
-                <div class="col-12">
+            <div class="justify-content-center">
+                <div>
                     {% block messages %}
                         {% include '_messages.html' %}
                     {% endblock %}
                 </div>
-                <div class="col-12">
+                <div>
                     {% block content %}{% endblock %}
                 </div>
             </div>

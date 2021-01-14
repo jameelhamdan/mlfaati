@@ -1,0 +1,11 @@
+#browserApp table tbody {
+  display: block;
+  max-height: 50vh;
+  overflow-y: scroll;
+}
+
+#browserApp table thead, #browserApp table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}

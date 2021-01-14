@@ -100,7 +100,7 @@ SESSION_ENGINE = 'qsessions.backends.cached_db'
 
 LOGIN_URL = '/auth/login'
 LOGOUT_REDIRECT_URL = LOGIN_URL
-LOGIN_REDIRECT_URL = '/dashboard'
+LOGIN_REDIRECT_URL = '/console'
 
 
 # Email setup

@@ -4,9 +4,14 @@ import core.models
 
 
 class FileSerializer(serializers.ModelSerializer):
+    serve_url = serializers.SerializerMethodField()
+
+    def get_serve_url(self, obj):
+        return obj.get_absolute_url(full=True)
+
     class Meta:
         model = core.models.File
-        fields = ['id', 'name', 'content_type', 'content_length', 'created_on', 'updated_on']
+        fields = ['id', 'name', 'serve_url', 'content_type', 'content_length', 'created_on', 'updated_on']
 
 
 class FolderSerializer(serializers.ModelSerializer):

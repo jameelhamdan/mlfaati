@@ -1,3 +1,4 @@
+from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import generic
@@ -46,12 +47,13 @@ class BrowseView(PageMixin, generic.DetailView):
         ]
 
 
-class CreateSpaceView(PageMixin, generic.CreateView):
+class CreateSpaceView(PageMixin, SuccessMessageMixin, generic.CreateView):
     template_name = 'console/space/form.html'
     form_class = forms.SpaceForm
     page_title = _('Console - Add Space')
     context_object_name = 'space'
-    success_url = _('Added Space.')
+    success_message = _('Added Space.')
+    success_url = reverse_lazy('console:home')
 
     def get_breadcrumbs(self):
         return [
@@ -64,20 +66,17 @@ class CreateSpaceView(PageMixin, generic.CreateView):
         kwargs['cancel_url'] = reverse_lazy('console:home')
         return kwargs
 
-    def get_success_url(self):
-        return reverse_lazy('console:space_browse', kwargs={'pk': self.object.pk})
-
     def form_valid(self, form):
         form.instance.owner = self.request.user
         return super(CreateSpaceView, self).form_valid(form)
 
 
-class UpdateSpaceView(PageMixin, generic.UpdateView):
+class UpdateSpaceView(PageMixin, SuccessMessageMixin, generic.UpdateView):
     template_name = 'console/space/form.html'
     form_class = forms.SpaceForm
     page_title = _('Console - Update %s Space')
     context_object_name = 'space'
-    success_url = _('Updated Space.')
+    success_message = _('Updated Space.')
 
     def get_queryset(self):
         return core.models.Space.objects.owned(self.request.user)

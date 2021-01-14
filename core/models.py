@@ -143,12 +143,14 @@ class File(LifecycleModelMixin, models.Model):
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
 
-    def get_path(self):
+    def get_path(self, with_space: bool = True):
         folder_path = []
         if self.folder:
             folder_path = self.folder.path
 
-        return PATH_CONCAT_CHARACTER.join([self.space.name] + folder_path + [self.name])
+        if with_space:
+            return PATH_CONCAT_CHARACTER.join([self.space.name] + folder_path + [self.name])
+        return PATH_CONCAT_CHARACTER.join(folder_path + [self.name])
 
     @hook(BEFORE_CREATE)
     def before_create(self):
@@ -156,11 +158,25 @@ class File(LifecycleModelMixin, models.Model):
         self.content_type = self.content.file.content_type
         self.content_length = self.content.size
 
-    def get_absolute_url(self):
+    def get_absolute_url(self, access_time: int = 900, full: bool = False):
+        """
+        Gets serve url for public and private files
+        :param access_time: how long in minutes the access will remain (for private files)
+        :param full: return full path url or return only with uuid
+        :return: url
+        """
+
         url = reverse('cdn:by_id', kwargs={'pk': self.pk})
+        if full:
+
+            url = reverse('cdn:by_path', kwargs={
+                'space_name': self.space.name,
+                'path': self.get_path(False)
+
+            })
 
         if self.space.privacy == self.space.PRIVACY.PRIVATE:
-            return '%s?%s=%s' % (url, config.PRIVATE_FILE_GET_PARAM, self.get_access_token(15))
+            return '%s?%s=%s' % (url, config.PRIVATE_FILE_GET_PARAM, self.get_access_token(access_time))
 
         return url
 

@@ -11,7 +11,7 @@ class BaseBrowserView(generics.GenericAPIView):
         files_count=SubqueryCount('files'),
         files_total_size=SubquerySum('files__content_length'),
     )
-    files_queryset = core.models.File.objects.all()
+    files_queryset = core.models.File.objects.select_related('space', 'folder')
 
     folder_serializer_class = serializers.FolderSerializer
     file_serializer_class = serializers.FileSerializer

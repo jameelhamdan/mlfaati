@@ -48,6 +48,9 @@
             this.loadData(this.rootApiUrl);
         },
         methods: {
+            openFile(file) {
+                window.open(file.serve_url, '_blank').focus();
+            },
             openFolder(folder = null) {
                 if (folder) {
                     this.loadData(folder.url);

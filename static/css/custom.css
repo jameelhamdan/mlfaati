@@ -21,4 +21,8 @@ main footer.footer {
   flex-shrink: unset;
 }
 
+.remove-asterisk .asteriskField {
+    display: none;
+}
+
 [v-cloak] {display: none}

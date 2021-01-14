@@ -2,8 +2,12 @@
 {% load static %}
 {% load i18n %}
 {% block content %}
-<div class="row">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-4">
+
+{% block css %}
+    <link type="text/css" href="{% static 'css/browser.css' %}" rel="stylesheet">
+{% endblock %}
+<div class="">
+    <div class="d-flex flex-grow-0 justify-content-between flex-wrap flex-md-nowrap align-items-center pb-4">
         <div class="d-block mb-4 mb-md-0">
             <h2 class="h4">{% blocktrans %} Console - <b><i>{{ space }}</i></b> Space{% endblocktrans %}</h2>
             <p class="mb-0">{% trans 'You can manage your space files here' %}</p>
@@ -17,63 +21,60 @@
             </div>
         </div>
     </div>
-    <div class="col-12">
-        <div id="browserApp">
-            <div class="card border-light shadow-sm mb-4">
-                <div class="card-header">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h2 class="h5">
-                                <a @click="openFolder(null)">/ </a>
-                                <a @click="openFolder(folder)" v-if="currentFolder" v-for="folder in currentFolder.ancestors">[[ folder.name ]] / </a>
-                                <a @click="openFolder(currentFolder)" v-if="currentFolder">[[ currentFolder.name ]] /</a>
-                            </h2>
-                        </div>
-                        <div class="col text-right">
-                            <!-- Actions -->
-                        </div>
-                    </div>
+    <div id="browserApp" class="card border-light shadow-sm mb-4">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="h5">
+                        <a @click="openFolder(null)">/ </a>
+                        <a @click="openFolder(folder)" v-if="currentFolder" v-for="folder in currentFolder.ancestors">[[ folder.name ]] / </a>
+                        <a @click="openFolder(currentFolder)" v-if="currentFolder">[[ currentFolder.name ]] /</a>
+                    </h2>
                 </div>
-                <div class="table-responsive">
-                    <table class="table align-items-center table-flush mb-0 rounded">
-                        <thead class="thead-light">
-                        <tr>
-                            <th>#</th>
-                            <th>{% trans 'Name' %}</th>
-                            <th>{% trans 'Type' %}</th>
-                            <th>{% trans 'Created On' %}</th>
-                            <th>{% trans 'Size' %}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr v-if="currentFolder">
-                            <td>#</td>
-                            <td><a @click="openFolder(currentFolder.previous)"><i class="ft-folder"></i> ..</a></td>
-                            <td>Folder</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr v-for="folder in folderList">
-                            <td>#</td>
-                            <td><a @click="openFolder(folder)"><i class="ft-folder"></i> [[ folder.name ]]</a></td>
-                            <td>Folder</td>
-                            <td>[[ folder.created_on ]]</td>
-                            <td>[[ folder.size ]]</td>
-                        </tr>
-                        <tr v-for="file in fileList">
-                            <td>#</td>
-                            <td><i class="ft-file"></i> [[ file.name ]]</td>
-                            <td>[[ file.content_type ]]</td>
-                            <td>[[ file.created_on ]]</td>
-                            <td>[[ file.size ]]</td>
-                        </tr>
-                        </tbody>
-                    </table>
+                <div class="col text-right">
+                    <!-- Actions -->
                 </div>
             </div>
         </div>
+        <div class="table-responsive">
+            <table class="table align-items-center table-flush mb-0 rounded">
+                <thead class="thead-light">
+                <tr>
+                    <th>#</th>
+                    <th>{% trans 'Name' %}</th>
+                    <th>{% trans 'Type' %}</th>
+                    <th>{% trans 'Created On' %}</th>
+                    <th>{% trans 'Size' %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-if="currentFolder">
+                    <td>#</td>
+                    <td><a @click="openFolder(currentFolder.previous)"><i class="ft-folder"></i> ..</a></td>
+                    <td>Folder</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr v-for="folder in folderList">
+                    <td>#</td>
+                    <td><a @click="openFolder(folder)"><i class="ft-folder"></i> <span :title="folder.name">[[ folder.name ]]</span></a></td>
+                    <td>Folder</td>
+                    <td>[[ folder.created_on ]]</td>
+                    <td>[[ folder.size ]]</td>
+                </tr>
+                <tr v-for="file in fileList">
+                    <td>#</td>
+                    <td><a @click="openFile(file)"><i class="ft-file"></i> <span :title="file.name">[[ file.name ]]</span></a></td>
+                    <td>[[ file.content_type ]]</td>
+                    <td>[[ file.created_on ]]</td>
+                    <td>[[ file.size ]]</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
 {% endblock %}
 {% block javascript %}
 <script src="{% static 'vendor/vue/vue.min.js' %}"></script>
