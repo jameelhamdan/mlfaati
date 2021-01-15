@@ -16,3 +16,13 @@ class SpaceNameValidator(RegexValidator):
         'numbers, and @/+/-/_ characters.'
     )
     flags = re.ASCII
+
+
+@deconstructible
+class PipelineNameValidator(RegexValidator):
+    regex = r'^[a-z0-9_+@-]+$'
+    message = _(
+        'Enter a valid pipeline name. This value may contain only lower case english letters, '
+        'numbers, and @/+/-/_ characters.'
+    )
+    flags = re.ASCII

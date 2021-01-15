@@ -39,9 +39,8 @@ class Space(LifecycleModelMixin, models.Model):
         PUBLIC = 'PUBLIC', _('Public')
         PRIVATE = 'PRIVATE', _('Private')
 
-        @staticmethod
-        def as_dict():
-            cls = Space.PRIVACY
+        @classmethod
+        def as_dict(cls):
             return {
                 cls.PUBLIC.name: cls.PUBLIC.value,
                 cls.PRIVATE.name: cls.PRIVATE.value,

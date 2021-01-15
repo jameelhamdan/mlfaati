@@ -5,3 +5,4 @@ SITE_NAME = _('Mlfaati')
 GITHUB_REPO = 'https://github.com/Kingjmk/mlfaati'
 AUTHOR = 'Jameel Hamdan'
 PRIVATE_FILE_GET_PARAM = 'token'
+ENABLE_TRANSFORMATIONS = True
