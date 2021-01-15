@@ -27,19 +27,24 @@
             folderList() {
                 let list = this.data.folders;
                 list.forEach(function (folder, index) {
-                    if (!folder.content_length) {
-                        folder.size = '';
-                    } else {
-                        folder.size = humanFileSize(folder.content_length);
-                    }
-
+                    folder.created_on_display = moment(folder.created_on).fromNow();
+                    folder.updated_on_display = moment(folder.updated_on).fromNow();
+                    folder.size = folder.content_length ? humanFileSize(folder.content_length) : '';
                 })
                 return list;
             },
             fileList() {
                 let list = this.data.files;
                 list.forEach(function (file, index) {
+                    file.created_on_display = moment(file.created_on).fromNow();
+                    file.updated_on_display = moment(file.updated_on).fromNow();
                     file.size = humanFileSize(file.content_length);
+
+                    list.forEach(function (childFile, index) {
+                        childFile.created_on_display = moment(childFile.created_on).fromNow();
+                        childFile.updated_on_display = moment(childFile.updated_on).fromNow();
+                        childFile.size = humanFileSize(childFile.content_length);
+                    });
                 })
                 return list;
             },

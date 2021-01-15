@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.SlugField(max_length=20, validators=[common.validators.PipelineNameValidator])),
                 ('is_enabled', models.BooleanField(db_index=True, default=True)),
-                ('target_type', models.CharField(choices=[('ALL', 'All'), ('IMAGE', 'Image'), ('VIDEO', 'Video'), ('AUDIO', 'Audio')], db_index=True, max_length=16)),
+                ('target_type', models.CharField(choices=[('ALL', 'All'), ('IMAGE', 'Image'), ('VIDEO', 'Video'), ('AUDIO', 'Audio')], db_index=True, help_text='Select which kind of files to use for this Pipeline', max_length=16)),
                 ('folder', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pipelines', to='core.folder')),
             ],
             options={

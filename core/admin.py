@@ -21,9 +21,9 @@ class FolderAdmin(admin.ModelAdmin):
 
 @admin.register(models.File)
 class FileAdmin(admin.ModelAdmin):
-    list_display = ['id', 'space', 'path', 'cdn_url']
-    list_select_related = ['folder', 'space']
-    readonly_fields = ['name', 'content_type', 'content_length']
+    list_display = ['id', 'space', 'path', 'parent', 'cdn_url']
+    list_select_related = ['folder', 'space', 'parent']
+    readonly_fields = ['name', 'parent', 'content_type', 'content_length']
     list_filter = ['name', 'content_type', 'folder']
     autocomplete_fields = ['folder']
 

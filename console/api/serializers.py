@@ -3,7 +3,7 @@ from rest_framework import serializers
 import core.models
 
 
-class FileSerializer(serializers.ModelSerializer):
+class ChildrenSerializer(serializers.ModelSerializer):
     serve_url = serializers.SerializerMethodField()
 
     def get_serve_url(self, obj):
@@ -12,6 +12,18 @@ class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = core.models.File
         fields = ['id', 'name', 'serve_url', 'content_type', 'content_length', 'created_on', 'updated_on']
+
+
+class FileSerializer(serializers.ModelSerializer):
+    serve_url = serializers.SerializerMethodField()
+    children = ChildrenSerializer(many=True, default=[])
+
+    def get_serve_url(self, obj):
+        return obj.get_absolute_url(full=True)
+
+    class Meta:
+        model = core.models.File
+        fields = ['id', 'name', 'serve_url', 'children', 'content_type', 'content_length', 'created_on', 'updated_on']
 
 
 class FolderSerializer(serializers.ModelSerializer):

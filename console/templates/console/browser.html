@@ -36,42 +36,40 @@
                 </div>
             </div>
         </div>
-        <div class="table-responsive">
-            <table class="table align-items-center table-flush mb-0 rounded">
+        <table class="table align-items-center table-flush mb-0 rounded">
                 <thead class="thead-light">
                 <tr>
-                    <th>#</th>
+                    <th class="w-5">#</th>
                     <th>{% trans 'Name' %}</th>
-                    <th>{% trans 'Type' %}</th>
-                    <th>{% trans 'Created On' %}</th>
-                    <th>{% trans 'Size' %}</th>
+                    <th class="w-15">{% trans 'Type' %}</th>
+                    <th class="w-15 d-none d-sm-table-cell">{% trans 'Created On' %}</th>
+                    <th class="w-15">{% trans 'Size' %}</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-if="currentFolder">
-                    <td>#</td>
+                    <td class="w-5">#</td>
                     <td><a @click="openFolder(currentFolder.previous)"><i class="ft-folder"></i> ..</a></td>
-                    <td>Folder</td>
-                    <td></td>
-                    <td></td>
+                    <td class="w-15">Previous Folder</td>
+                    <td class="w-15 d-none d-sm-table-cell"></td>
+                    <td class="w-15"></td>
                 </tr>
                 <tr v-for="folder in folderList">
-                    <td>#</td>
+                    <td class="w-5">#</td>
                     <td><a @click="openFolder(folder)"><i class="ft-folder"></i> <span :title="folder.name">[[ folder.name ]]</span></a></td>
-                    <td>Folder</td>
-                    <td>[[ folder.created_on ]]</td>
-                    <td>[[ folder.size ]]</td>
+                    <td class="w-15">Folder</td>
+                    <td class="w-15 d-none d-sm-table-cell" :title="folder.created_on">[[ folder.created_on_display ]]</td>
+                    <td class="w-15">[[ folder.size ]]</td>
                 </tr>
                 <tr v-for="file in fileList">
-                    <td>#</td>
+                    <td class="w-5">#</td>
                     <td><a @click="openFile(file)"><i class="ft-file"></i> <span :title="file.name">[[ file.name ]]</span></a></td>
-                    <td>[[ file.content_type ]]</td>
-                    <td>[[ file.created_on ]]</td>
-                    <td>[[ file.size ]]</td>
+                    <td class="w-15">[[ file.content_type ]]</td>
+                    <td class="w-15 d-none d-sm-table-cell" :title="file.created_on">[[ file.created_on_display ]]</td>
+                    <td class="w-15">[[ file.size ]]</td>
                 </tr>
                 </tbody>
             </table>
-        </div>
     </div>
 </div>
 
