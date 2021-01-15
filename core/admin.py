@@ -5,7 +5,7 @@ from . import models
 
 @admin.register(models.Space)
 class SpaceAdmin(admin.ModelAdmin):
-    list_display = ['name', 'owner', 'privacy']
+    list_display = ['name', 'owner', 'privacy', 'created_on']
     list_select_related = ['owner']
     list_filter = ['owner']
     search_fields = ['name']
@@ -13,7 +13,7 @@ class SpaceAdmin(admin.ModelAdmin):
 
 @admin.register(models.Folder)
 class FolderAdmin(admin.ModelAdmin):
-    list_display = ['name', 'full_path', 'space']
+    list_display = ['name', 'full_path', 'space', 'created_on']
     list_select_related = ['parent', 'space']
     list_filter = ['name', 'parent', 'space']
     search_fields = ['name']
@@ -21,7 +21,7 @@ class FolderAdmin(admin.ModelAdmin):
 
 @admin.register(models.File)
 class FileAdmin(admin.ModelAdmin):
-    list_display = ['id', 'space', 'path', 'parent', 'cdn_url']
+    list_display = ['id', 'space', 'path', 'parent', 'cdn_url', 'created_on']
     list_select_related = ['folder', 'space', 'parent']
     readonly_fields = ['name', 'parent', 'content_type', 'content_length']
     list_filter = ['name', 'content_type', 'folder']
