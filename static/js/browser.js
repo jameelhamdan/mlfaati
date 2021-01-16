@@ -113,8 +113,8 @@
                 <div class="col">
                     <a><h3 class="h5">[[ details.content_type ]]</h3></a>
                     <div class="small font-weight-bold mt-1">Size: [[ details.size ]]</div>
-                    <div class="small font-weight-bold mt-1" :title="details.created_on">Added on: [[ details.created_on_display ]]</div>
-                    <div class="small font-weight-bold mt-1" :title="details.updated_on">Updated on: [[ details.updated_on_display ]]</div>
+                    <div class="small font-weight-bold mt-1" :title="details.created_on">Added: [[ details.created_on_display ]]</div>
+                    <div class="small font-weight-bold mt-1" :title="details.updated_on">Updated: [[ details.updated_on_display ]]</div>
                 </div>
                 <div class="col-12 mt-3">
                     <div class="small font-weight-bold mt-1">File name:</div>
@@ -139,8 +139,8 @@
                 <div class="col">
                     <a><h3 class="h5">[[ details.files_count ]] Files</h3></a>
                     <div class="small font-weight-bold mt-1">Total Size: [[ details.size ]]</div>
-                    <div class="small font-weight-bold mt-1" :title="details.created_on">Added on: [[ details.created_on_display ]]</div>
-                    <div class="small font-weight-bold mt-1" :title="details.updated_on">Updated on: [[ details.updated_on_display ]]</div>
+                    <div class="small font-weight-bold mt-1" :title="details.created_on">Added: [[ details.created_on_display ]]</div>
+                    <div class="small font-weight-bold mt-1" :title="details.updated_on">Updated: [[ details.updated_on_display ]]</div>
                 </div>
                 <div class="col-12 mt-3">
                     <div class="small font-weight-bold mt-1">Folder name:</div>
