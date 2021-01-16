@@ -13,7 +13,7 @@ class BaseBrowserView(generics.GenericAPIView):
     )
     files_queryset = core.models.File.objects.filter(
         parent_id__isnull=True
-    ).select_related('space', 'folder').prefetch_related('children')
+    ).select_related('space', 'folder', 'pipeline').prefetch_related('children')
 
     folder_serializer_class = serializers.FolderSerializer
     file_serializer_class = serializers.FileSerializer

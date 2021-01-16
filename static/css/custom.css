@@ -37,4 +37,8 @@ main footer.footer {
     width: 15%;
 }
 
+.show-pointer:hover {
+    cursor: pointer;
+}
+
 [v-cloak] {display: none}

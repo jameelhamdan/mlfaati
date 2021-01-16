@@ -33,11 +33,12 @@ def process_file(file_id):
             parent=file,
             folder_id=file.folder_id,
             space_id=file.space_id,
+            pipeline_id=pipeline.id,
         )
 
         child_file.save()
         child_list.append({
-            'id': child_file,
+            'id': child_file.pk,
             'pipeline_id': pipeline.id,
             'pipeline_name': pipeline.name,
         })

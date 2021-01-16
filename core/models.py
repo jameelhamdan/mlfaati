@@ -140,10 +140,16 @@ class File(LifecycleModelMixin, models.Model):
     content = models.FileField(upload_to=UploadToPathAndRename())
     folder: 'Folder' = models.ForeignKey('Folder', on_delete=models.CASCADE, related_name='files', null=True, blank=True)
     space: 'Space' = models.ForeignKey('Space', on_delete=models.CASCADE, related_name='files')
+
+    # Fields for child files
     parent: 'File' = models.ForeignKey(
         'File', on_delete=models.CASCADE, related_name='children', null=True, blank=True, editable=False,
         help_text=_('For processed files parent')
     )
+    pipeline = models.ForeignKey(
+        'processing.Pipeline', on_delete=models.CASCADE, related_name='files', null=True, blank=True, editable=False,
+    )
+
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
 

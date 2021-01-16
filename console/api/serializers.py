@@ -1,17 +1,25 @@
 from django.urls import reverse
 from rest_framework import serializers
 import core.models
+import processing.models
+
+
+class PipelineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = processing.models.Pipeline
+        fields = ['id', 'name', 'target_type']
 
 
 class ChildrenSerializer(serializers.ModelSerializer):
     serve_url = serializers.SerializerMethodField()
+    pipeline = PipelineSerializer()
 
     def get_serve_url(self, obj):
         return obj.get_absolute_url(full=True)
 
     class Meta:
         model = core.models.File
-        fields = ['id', 'name', 'serve_url', 'content_type', 'content_length', 'created_on', 'updated_on']
+        fields = ['id', 'name', 'serve_url', 'pipeline', 'content_type', 'content_length', 'created_on', 'updated_on']
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -28,11 +36,12 @@ class FileSerializer(serializers.ModelSerializer):
 
 class FolderSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
-    content_length = serializers.IntegerField(source='files_total_size', default=0)
+    files_count = serializers.IntegerField(default=0)
+    files_total_size = serializers.IntegerField(default=0)
 
     def get_url(self, obj):
         return reverse('console:api_browser_folder', kwargs={'pk': obj.space_id, 'folder_id': obj.pk})
 
     class Meta:
         model = core.models.Folder
-        fields = ['id', 'name', 'path', 'url', 'content_length', 'full_path', 'created_on', 'updated_on']
+        fields = ['id', 'name', 'path', 'url', 'files_count', 'files_total_size', 'full_path', 'created_on', 'updated_on']

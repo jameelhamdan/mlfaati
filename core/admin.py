@@ -21,10 +21,10 @@ class FolderAdmin(admin.ModelAdmin):
 
 @admin.register(models.File)
 class FileAdmin(admin.ModelAdmin):
-    list_display = ['id', 'space', 'path', 'parent', 'cdn_url', 'created_on']
+    list_display = ['space', 'path', 'parent', 'cdn_url', 'created_on']
     list_select_related = ['folder', 'space', 'parent']
-    readonly_fields = ['name', 'parent', 'content_type', 'content_length']
-    list_filter = ['name', 'content_type', 'folder']
+    readonly_fields = ['name', 'parent', 'content_type', 'content_length', 'pipeline']
+    list_filter = ['name', 'content_type', 'folder', 'pipeline']
     autocomplete_fields = ['folder']
 
     def cdn_url(self, obj):
