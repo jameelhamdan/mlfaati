@@ -1,11 +1,15 @@
-#browserApp table tbody {
-  display: block;
-  max-height: 50vh;
-  overflow-y: scroll;
+#browserApp .table-responsive {
+    max-height: 65vh;
+    overflow-y: scroll;
 }
 
-#browserApp table thead, #browserApp table tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
+#browserApp .table-responsive thead th {
+    position: sticky;
+    top: 0;
 }
+
+#browserApp .detailsCard {
+    min-height: 50vh;
+    max-height: 65vh;
+}
+

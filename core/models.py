@@ -4,13 +4,14 @@ from datetime import timedelta
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.db import models
-from django_lifecycle import LifecycleModelMixin, hook, BEFORE_CREATE, BEFORE_UPDATE, AFTER_UPDATE
+from django.db import models, transaction
+from django_lifecycle import LifecycleModelMixin, hook, BEFORE_CREATE, AFTER_CREATE, BEFORE_UPDATE, AFTER_UPDATE
 from django.utils.deconstruct import deconstructible
 from tree_queries.models import TreeNode, TreeNodeForeignKey
-
 from app import config
 from common import validators, crypt
+import processing.tasks
+
 
 PATH_CONCAT_CHARACTER = '/'
 
@@ -39,9 +40,8 @@ class Space(LifecycleModelMixin, models.Model):
         PUBLIC = 'PUBLIC', _('Public')
         PRIVATE = 'PRIVATE', _('Private')
 
-        @staticmethod
-        def as_dict():
-            cls = Space.PRIVACY
+        @classmethod
+        def as_dict(cls):
             return {
                 cls.PUBLIC.name: cls.PUBLIC.value,
                 cls.PRIVATE.name: cls.PRIVATE.value,
@@ -138,8 +138,18 @@ class File(LifecycleModelMixin, models.Model):
     content_type = models.CharField(max_length=32, db_index=True)
     content_length = models.IntegerField(default=0)
     content = models.FileField(upload_to=UploadToPathAndRename())
-    folder: 'Folder' = TreeNodeForeignKey('Folder', on_delete=models.CASCADE, related_name='files', null=True, blank=True)
-    space = models.ForeignKey('Space', on_delete=models.CASCADE, related_name='files')
+    folder: 'Folder' = models.ForeignKey('Folder', on_delete=models.CASCADE, related_name='files', null=True, blank=True)
+    space: 'Space' = models.ForeignKey('Space', on_delete=models.CASCADE, related_name='files')
+
+    # Fields for child files
+    parent: 'File' = models.ForeignKey(
+        'File', on_delete=models.CASCADE, related_name='children', null=True, blank=True, editable=False,
+        help_text=_('For processed files parent')
+    )
+    pipeline = models.ForeignKey(
+        'processing.Pipeline', on_delete=models.CASCADE, related_name='files', null=True, blank=True, editable=False,
+    )
+
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
 
@@ -157,6 +167,16 @@ class File(LifecycleModelMixin, models.Model):
         self.name = self.content.name
         self.content_type = self.content.file.content_type
         self.content_length = self.content.size
+
+    @hook(AFTER_CREATE)
+    def after_create(self):
+        if not config.ENABLE_TRANSFORMATIONS:
+            return
+
+        if self.parent_id:
+            return
+
+        transaction.on_commit(lambda: processing.tasks.process_file.delay(self.pk))
 
     def get_absolute_url(self, access_time: int = 900, full: bool = False):
         """
