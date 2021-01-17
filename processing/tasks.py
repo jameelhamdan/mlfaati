@@ -25,8 +25,7 @@ def process_file(file_id):
 
         # Starting Processing of file
         for transformation in pipeline.transformations.all():
-            # TODO: actually process the temp_file using transformation
-            pass
+            temp_file = transformation.process_file(temp_file)
 
         child_file = core.models.File(
             content=temp_file,
