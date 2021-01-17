@@ -170,13 +170,13 @@ SHORT_DATE_FORMAT = 'Y-m-d'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 STATICFILES_STORAGE = 'app.staticfiles.StaticFilesStorage'
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, '.static')
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
@@ -193,4 +193,4 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 
-
+ENABLE_TRANSFORMATIONS = True

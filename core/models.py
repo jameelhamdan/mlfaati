@@ -3,6 +3,7 @@ import os
 from datetime import timedelta
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
+from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from django.db import models, transaction
 from django_lifecycle import LifecycleModelMixin, hook, BEFORE_CREATE, AFTER_CREATE, BEFORE_UPDATE, AFTER_UPDATE
@@ -11,7 +12,7 @@ from tree_queries.models import TreeNode, TreeNodeForeignKey
 from app import config
 from common import validators, crypt
 import processing.tasks
-
+from common.crypt import short_uuid
 
 PATH_CONCAT_CHARACTER = '/'
 
@@ -162,9 +163,23 @@ class File(LifecycleModelMixin, models.Model):
             return PATH_CONCAT_CHARACTER.join([self.space.name] + folder_path + [self.name])
         return PATH_CONCAT_CHARACTER.join(folder_path + [self.name])
 
+    @classmethod
+    def check_name_exists(cls, folder_id, file_name):
+        return cls.objects.filter(folder_id=folder_id, name=file_name).exists()
+
+    @classmethod
+    def get_alternative_name(cls, name):
+        dir_name, file_name = os.path.split(name)
+        file_root, file_ext = os.path.splitext(file_name)
+        return '%s_%s%s' % (file_root, short_uuid(), file_ext)
+
     @hook(BEFORE_CREATE)
     def before_create(self):
         self.name = self.content.name
+
+        if self.check_name_exists(self.folder_id, self.name):
+            self.name = self.get_alternative_name(self.name)
+
         self.content_type = self.content.file.content_type
         self.content_length = self.content.size
 

@@ -1,5 +1,6 @@
 import jwt
 import base64
+import uuid
 from jwt import exceptions as jwt_exceptions
 from datetime import datetime, timedelta
 from django.conf import settings
@@ -39,3 +40,7 @@ def verify_token(token: str, secret_key: str = settings.SECRET_KEY) -> dict:
         raise jwt_exceptions.DecodeError from e
     # Must be encoded with same secret key defined in settings
     return jwt.decode(token, secret_key, leeway=timedelta(seconds=5), algorithms=[JWT_ALGORITHM, ])
+
+
+def short_uuid():
+    return base64.urlsafe_b64encode(uuid.uuid4().bytes).rstrip(b'=').decode('ascii')
