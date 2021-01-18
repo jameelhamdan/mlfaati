@@ -19,11 +19,11 @@ class TransformationType(models.TextChoices):
     COMPRESS = 'COMPRESS', _('Compress')
     IMAGE_COMPRESS = 'IMAGE_COMPRESS', _('Compress Image')
     RESIZE = 'RESIZE', _('Resize')
-    SCALE = 'SCALE', _('Scale')
+    ADJUST = 'ADJUST', _('Adjust')
 
     @classmethod
     def file_types(cls):
-        return [cls.COMPRESS, cls.IMAGE_COMPRESS, cls.RESIZE, cls.SCALE]
+        return [cls.COMPRESS, cls.IMAGE_COMPRESS, cls.RESIZE, cls.ADJUST]
 
     @classmethod
     def metadata_types(cls):
@@ -41,9 +41,13 @@ class TransformationType(models.TextChoices):
             self.RESIZE: {
                 'height': (int,),
                 'width': (int,),
+                'upscale': (bool, )
             },
-            self.SCALE: {
-                'scale': (int,)
+            self.ADJUST: {
+                'color': (float,),
+                'brightness': (float,),
+                'contrast': (float,),
+                'sharpness': (float,)
             }
         }
 
@@ -52,13 +56,13 @@ class TransformationType(models.TextChoices):
     @property
     def process_file_function(self):
         if self == self.COMPRESS:
-            return empty_process_file_function
+            return all.compress
         elif self == self.IMAGE_COMPRESS:
             return image.compress
         elif self == self.RESIZE:
-            return empty_process_file_function
-        elif self == self.SCALE:
-            return empty_process_file_function
+            return image.resize
+        elif self == self.ADJUST:
+            return image.adjust
 
         return empty_process_file_function
 
@@ -83,7 +87,7 @@ class FileType(models.TextChoices):
             self.IMAGE: [
                 TransformationType.IMAGE_COMPRESS,
                 TransformationType.RESIZE,
-                TransformationType.SCALE
+                TransformationType.ADJUST
             ],
         }
 

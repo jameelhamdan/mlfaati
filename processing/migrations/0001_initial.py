@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
             name='Transformation',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(choices=[('COMPRESS', 'Compress'), ('IMAGE_COMPRESS', 'Compress Image'), ('RESIZE', 'Resize'), ('SCALE', 'Scale')], db_index=True, max_length=16)),
+                ('type', models.CharField(choices=[('COMPRESS', 'Compress'), ('IMAGE_COMPRESS', 'Compress Image'), ('RESIZE', 'Resize'), ('ADJUST', 'Adjust')], db_index=True, max_length=16)),
                 ('extra_data', models.JSONField(default=dict, help_text="transformation configuration (Shouldn't) be manually edited)", blank=True)),
                 ('pipeline', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='transformations', to='processing.pipeline')),
             ],

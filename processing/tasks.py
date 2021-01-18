@@ -2,6 +2,7 @@ from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.core.files.uploadedfile import SimpleUploadedFile
 import core.models
+import copy
 
 
 logger = get_task_logger(__name__)
@@ -20,25 +21,28 @@ def process_file(file_id):
     child_list = []
 
     for pipeline in file.folder.pipelines.all():
+        if not pipeline.is_enabled:
+            continue
+
         # skip pipeline if file type not supported by it
-        if pipeline.target_type != file.get_file_type():
+        if pipeline.target_type != file.get_file_type() and pipeline.target_type != pipeline.TYPES.ALL:
             continue
 
         # Create Temporary file
         # TODO: copy file into memory in a more efficient way
         metadata = {}
         temp_file = SimpleUploadedFile(
-            name='%s__%s' % (pipeline.name, file.name),
-            content=file.content.read(),
-            content_type=file.content_type,
+            name=copy.deepcopy(file.name),
+            content=copy.deepcopy(file.content).read(),
+            content_type=copy.deepcopy(file.content_type),
         )
 
         # Starting Processing of file
         for transformation in pipeline.transformations.all():
             _types = transformation.TYPES
-            transform_type = _types(transformation.type)
+            transform_type = transformation._type
 
-            if transform_type not in pipeline._target_type.get_allowed_operations(file.content_type):
+            if transform_type not in pipeline._target_type.get_file_type(temp_file.content_type).mapping and pipeline.target_type != pipeline.TYPES.ALL:
                 # Skip transformation if it cannot be applied to file of this type
                 continue
 
@@ -49,6 +53,9 @@ def process_file(file_id):
                 metadata.update(transformation.process_metadata(temp_file))
             else:
                 raise ProcessingException('Transformation %s type is not mapped correctly in file types' % transform_type)
+
+        # Add prefix to file name
+        temp_file.name = '%s__%s' % (pipeline.name, temp_file.name)
 
         new_file = core.models.File(
             content=temp_file,
