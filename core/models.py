@@ -198,7 +198,10 @@ class File(LifecycleModelMixin, models.Model):
         if self.parent_id:
             return
 
-        transaction.on_commit(lambda: processing.tasks.process_file(self.pk))
+        if config.ENABLE_ASYNC:
+            transaction.on_commit(lambda: processing.tasks.process_file.delay(self.pk))
+        else:
+            processing.tasks.process_file(self.pk)
 
     def get_absolute_url(self, access_time: int = 900, full: bool = False):
         """
