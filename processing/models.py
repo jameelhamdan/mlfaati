@@ -30,6 +30,10 @@ class Pipeline(LifecycleModelMixin, models.Model):
         related_name='pipelines'
     )
 
+    @property
+    def _target_type(self) -> definitions.FileType:
+        return self.TYPES(self.target_type)
+
     class Meta:
         unique_together = [['name', 'folder']]
         ordering = ['-id']
@@ -55,14 +59,21 @@ class Transformation(LifecycleModelMixin, models.Model):
         blank=True
     )
 
+    @property
+    def _type(self) -> definitions.TransformationType:
+        return self.TYPES(self.type)
+
+    def process_metadata(self, file):
+        return self._type.process_metadata_function(file, **self.extra_data)
+
     def process_file(self, file):
-        return self.TYPES(self.type).process_function(file, **self.extra_data)
+        return self._type.process_file_function(file, **self.extra_data)
 
     def clean(self):
-        if self.type and self.type not in self.pipeline.TYPES(self.pipeline.target_type).mapping:
+        if self.type and self.type not in self.pipeline._target_type.mapping:
             raise ValidationError({'type': _('Type is not supported by selected pipeline.')})
 
-        self.validate_extra_data(self.TYPES(self.type).fields, self.extra_data)
+        self.validate_extra_data(self._type.fields, self.extra_data)
 
     @classmethod
     def validate_extra_data(cls, fields: dict, data: dict):

@@ -3,8 +3,12 @@ from django.utils.translation import gettext_lazy as _
 from .backends import (all, audio, image, video)
 
 
-def empty_process_function(file, **options):
+def empty_process_file_function(file, **options):
     return file
+
+
+def empty_process_metadata_function(file, **options):
+    return {}
 
 
 class TransformationType(models.TextChoices):
@@ -17,40 +21,50 @@ class TransformationType(models.TextChoices):
     RESIZE = 'RESIZE', _('Resize')
     SCALE = 'SCALE', _('Scale')
 
+    @classmethod
+    def file_types(cls):
+        return [cls.COMPRESS, cls.IMAGE_COMPRESS, cls.RESIZE, cls.SCALE]
+
+    @classmethod
+    def metadata_types(cls):
+        return []
+
     @property
     def fields(self) -> dict:
-        if self == self.COMPRESS:
-            return {
+        fields = {
+            self.COMPRESS: {
                 'quality': (int,)
-            }
-        elif self == self.IMAGE_COMPRESS:
-            return {
+            },
+            self.IMAGE_COMPRESS: {
                 'quality': (int,)
-            }
-        elif self == self.RESIZE:
-            return {
+            },
+            self.RESIZE: {
                 'height': (int,),
                 'width': (int,),
-            }
-        elif self == self.SCALE:
-            return {
+            },
+            self.SCALE: {
                 'scale': (int,)
             }
+        }
 
-        return {}
+        return fields.get(self, {})
 
     @property
-    def process_function(self):
+    def process_file_function(self):
         if self == self.COMPRESS:
-            return empty_process_function
+            return empty_process_file_function
         elif self == self.IMAGE_COMPRESS:
             return image.compress
         elif self == self.RESIZE:
-            return empty_process_function
+            return empty_process_file_function
         elif self == self.SCALE:
-            return empty_process_function
+            return empty_process_file_function
 
-        return empty_process_function
+        return empty_process_file_function
+
+    @property
+    def process_metadata_function(self):
+        return empty_process_metadata_function
 
 
 class FileType(models.TextChoices):
@@ -64,31 +78,25 @@ class FileType(models.TextChoices):
 
     @property
     def mapping(self) -> list:
-        if self == self.ALL:
-            return [TransformationType.COMPRESS]
-        elif self == self.IMAGE:
-            return [
+        mapping = {
+            self.ALL: [TransformationType.COMPRESS],
+            self.IMAGE: [
                 TransformationType.IMAGE_COMPRESS,
                 TransformationType.RESIZE,
                 TransformationType.SCALE
-            ]
-        elif self == self.VIDEO:
-            return []
-        elif self == self.AUDIO:
-            return []
+            ],
+        }
 
-        return []
+        return mapping.get(self, [])
 
     @classmethod
-    def get_allowed_operations(cls, content_type: 'str') -> list:
-        mapping = cls.get_transformation_mapping()
-
+    def get_file_type(cls, content_type: 'str') -> 'FileType':
         # TODO: detect file type more robustly
         if 'image' in content_type:
-            return cls.IMAGE.mapping
+            return cls.IMAGE
         elif 'video' in content_type:
-            return cls.VIDEO.mapping
+            return cls.VIDEO
         elif 'audio' in content_type:
-            return cls.AUDIO.mapping
+            return cls.AUDIO
 
-        return mapping[cls.ALL]
+        return cls.ALL
