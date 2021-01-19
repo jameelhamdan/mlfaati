@@ -1,5 +1,14 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from .backends import (all, audio, image, video)
+
+
+def empty_process_file_function(file, **options):
+    return file
+
+
+def empty_process_metadata_function(file, **options):
+    return {}
 
 
 class TransformationType(models.TextChoices):
@@ -10,21 +19,56 @@ class TransformationType(models.TextChoices):
     COMPRESS = 'COMPRESS', _('Compress')
     IMAGE_COMPRESS = 'IMAGE_COMPRESS', _('Compress Image')
     RESIZE = 'RESIZE', _('Resize')
-    SCALE = 'SCALE', _('Scale')
+    ADJUST = 'ADJUST', _('Adjust')
 
     @classmethod
-    def get_field_mapping(cls) -> dict:
-        return {
-            cls.COMPRESS: [],
-            cls.IMAGE_COMPRESS: [],
-            cls.RESIZE: [],
-            cls.SCALE: [],
+    def file_types(cls):
+        return [cls.COMPRESS, cls.IMAGE_COMPRESS, cls.RESIZE, cls.ADJUST]
+
+    @classmethod
+    def metadata_types(cls):
+        return []
+
+    @property
+    def fields(self) -> dict:
+        fields = {
+            self.COMPRESS: {
+                'quality': (int,)
+            },
+            self.IMAGE_COMPRESS: {
+                'quality': (int,)
+            },
+            self.RESIZE: {
+                'height': (int,),
+                'width': (int,),
+                'upscale': (bool, )
+            },
+            self.ADJUST: {
+                'color': (float,),
+                'brightness': (float,),
+                'contrast': (float,),
+                'sharpness': (float,)
+            }
         }
 
-    @classmethod
-    def get_fields(cls, transformation: 'TransformationType'):
-        # TODO: map values in a better way allowing validation, forms maybe?
-        return cls.get_field_mapping()[transformation]
+        return fields.get(self, {})
+
+    @property
+    def process_file_function(self):
+        if self == self.COMPRESS:
+            return all.compress
+        elif self == self.IMAGE_COMPRESS:
+            return image.compress
+        elif self == self.RESIZE:
+            return image.resize
+        elif self == self.ADJUST:
+            return image.adjust
+
+        return empty_process_file_function
+
+    @property
+    def process_metadata_function(self):
+        return empty_process_metadata_function
 
 
 class FileType(models.TextChoices):
@@ -36,29 +80,27 @@ class FileType(models.TextChoices):
     VIDEO = 'VIDEO', _('Video')
     AUDIO = 'AUDIO', _('Audio')
 
-    @classmethod
-    def get_transformation_mapping(cls) -> dict:
-        return {
-            cls.ALL: [TransformationType.COMPRESS],
-            cls.IMAGE: [
+    @property
+    def mapping(self) -> list:
+        mapping = {
+            self.ALL: [TransformationType.COMPRESS],
+            self.IMAGE: [
                 TransformationType.IMAGE_COMPRESS,
                 TransformationType.RESIZE,
-                TransformationType.SCALE
+                TransformationType.ADJUST
             ],
-            cls.VIDEO: [],
-            cls.AUDIO: [],
         }
 
-    @classmethod
-    def get_allowed_operations(cls, content_type: 'str') -> list:
-        mapping = cls.get_transformation_mapping()
+        return mapping.get(self, [])
 
+    @classmethod
+    def get_file_type(cls, content_type: 'str') -> 'FileType':
         # TODO: detect file type more robustly
         if 'image' in content_type:
-            return mapping[cls.IMAGE]
+            return cls.IMAGE
         elif 'video' in content_type:
-            return mapping[cls.VIDEO]
+            return cls.VIDEO
         elif 'audio' in content_type:
-            return mapping[cls.AUDIO]
+            return cls.AUDIO
 
-        return mapping[cls.ALL]
+        return cls.ALL

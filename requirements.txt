@@ -13,3 +13,6 @@ django-lifecycle==0.8.0
 django-tree-queries==0.4.3
 PyJWT==2.0.0
 django-sql-utils==0.6.1
+Pillow==8.1.0
+pilkit==2.0
+

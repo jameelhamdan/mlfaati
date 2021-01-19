@@ -15,7 +15,7 @@ class SpaceAdmin(admin.ModelAdmin):
 class FolderAdmin(admin.ModelAdmin):
     list_display = ['name', 'full_path', 'space', 'created_on']
     list_select_related = ['parent', 'space']
-    list_filter = ['name', 'parent', 'space']
+    list_filter = ['space']
     search_fields = ['name']
 
 
@@ -24,7 +24,8 @@ class FileAdmin(admin.ModelAdmin):
     list_display = ['space', 'path', 'parent', 'cdn_url', 'created_on']
     list_select_related = ['folder', 'space', 'parent']
     readonly_fields = ['name', 'parent', 'content_type', 'content_length', 'pipeline']
-    list_filter = ['name', 'content_type', 'folder', 'pipeline']
+    list_filter = ['content_type', 'folder', 'pipeline']
+    search_fields = ['name']
     autocomplete_fields = ['folder']
 
     def cdn_url(self, obj):

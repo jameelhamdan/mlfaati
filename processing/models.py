@@ -30,6 +30,10 @@ class Pipeline(LifecycleModelMixin, models.Model):
         related_name='pipelines'
     )
 
+    @property
+    def _target_type(self) -> definitions.FileType:
+        return self.TYPES(self.target_type)
+
     class Meta:
         unique_together = [['name', 'folder']]
         ordering = ['-id']
@@ -55,10 +59,43 @@ class Transformation(LifecycleModelMixin, models.Model):
         blank=True
     )
 
+    @property
+    def _type(self) -> definitions.TransformationType:
+        return self.TYPES(self.type)
+
+    def process_metadata(self, file):
+        return self._type.process_metadata_function(file, **self.extra_data)
+
+    def process_file(self, file):
+        return self._type.process_file_function(file, **self.extra_data)
+
     def clean(self):
-        type_mapping = self.pipeline.TYPES.get_transformation_mapping()
-        if self.type and self.type not in type_mapping[self.pipeline.TYPES(self.pipeline.target_type)]:
+        if self.type and self.type not in self.pipeline._target_type.mapping:
             raise ValidationError({'type': _('Type is not supported by selected pipeline.')})
+
+        self.validate_extra_data(self._type.fields, self.extra_data)
+
+    @classmethod
+    def validate_extra_data(cls, fields: dict, data: dict):
+        # TODO: replace this with serializers or forms
+        errors = []
+        for field_name, data_types in fields.items():
+            if field_name not in data.keys():
+                errors += ValidationError(
+                    _('Field "%(field_name)s" is required.'), params={'field_name': field_name}, code='required'
+                )
+                continue
+
+            if not isinstance(data[field_name], data_types):
+                errors += ValidationError(
+                    _('Field "%(field_name)s "value is not valid, must be of types (%(type)s)'),
+                    params={'field_name': field_name, 'type': ', '.join([x.__name__ for x in data_types])}, code='invalid'
+                )
+
+        if len(errors) > 0:
+            raise ValidationError({'extra_data': errors})
+
+        return data
 
     class Meta:
         ordering = ['-id']

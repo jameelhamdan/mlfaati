@@ -3,7 +3,6 @@ import os
 from datetime import timedelta
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
-from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from django.db import models, transaction
 from django_lifecycle import LifecycleModelMixin, hook, BEFORE_CREATE, AFTER_CREATE, BEFORE_UPDATE, AFTER_UPDATE
@@ -13,7 +12,7 @@ from app import config
 from common import validators, crypt
 import processing.tasks
 from common.crypt import short_uuid
-
+import processing.definitions
 PATH_CONCAT_CHARACTER = '/'
 
 
@@ -139,6 +138,8 @@ class File(LifecycleModelMixin, models.Model):
     content_type = models.CharField(max_length=32, db_index=True)
     content_length = models.IntegerField(default=0)
     content = models.FileField(upload_to=UploadToPathAndRename())
+    metadata = models.JSONField(default=dict, blank=True)
+
     folder: 'Folder' = models.ForeignKey('Folder', on_delete=models.CASCADE, related_name='files', null=True, blank=True)
     space: 'Space' = models.ForeignKey('Space', on_delete=models.CASCADE, related_name='files')
 
@@ -173,6 +174,12 @@ class File(LifecycleModelMixin, models.Model):
         file_root, file_ext = os.path.splitext(file_name)
         return '%s_%s%s' % (file_root, short_uuid(), file_ext)
 
+    def get_file_type(self) -> 'processing.definitions.FileType':
+        """
+        Returns processing.definitions.FileType
+        """
+        return processing.definitions.FileType.get_file_type(self.content_type)
+
     @hook(BEFORE_CREATE)
     def before_create(self):
         self.name = self.content.name
@@ -191,7 +198,10 @@ class File(LifecycleModelMixin, models.Model):
         if self.parent_id:
             return
 
-        transaction.on_commit(lambda: processing.tasks.process_file.delay(self.pk))
+        if config.ENABLE_ASYNC:
+            transaction.on_commit(lambda: processing.tasks.process_file.delay(self.pk))
+        else:
+            processing.tasks.process_file(self.pk)
 
     def get_absolute_url(self, access_time: int = 900, full: bool = False):
         """
