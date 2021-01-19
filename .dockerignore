@@ -1,0 +1,11 @@
+.git
+.static
+.idea/*
+.vscode/*
+*.gitignore
+local.py
+*__pycache__*
+__pycache__/*
+*/__pycache__/*
+*/*/__pycache__/*
+*__pycache__*

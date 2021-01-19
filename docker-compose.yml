@@ -1,0 +1,82 @@
+version: '3'
+
+services:
+  redis:
+    image: "redis:latest"
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  postgres:
+    image: "postgres:13.1"
+    restart: always
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  nginx:
+    image: "nginx:1.19.6-alpine"
+    restart: always
+    volumes:
+      - static_volume:/usr/src/app/.static
+      - media_volume:/usr/src/app/media
+      - logs_nginx:/var/log/nginx
+      - certs:/var/certs
+      - ./conf/nginx.http.conf:/etc/nginx/conf.d/app.conf
+
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - server
+
+  server:  # You will have to build the image and call it "mlfaati:latest"
+    image: "mlfaati:latest"
+    command: bash -c "./release.sh && daphne -b 0.0.0.0 -p 8000 app.server:asgi_application"
+    env_file: .env
+    volumes:
+      - static_volume:/usr/src/app/.static
+      - media_volume:/usr/src/app/media
+      - logs_app:/var/log/app
+    depends_on:
+      - redis
+      - postgres
+
+  celery:  # Not necessary if you disable async
+    image: "mlfaati:latest"
+    command: celery -A app.celery_app worker -l info
+    env_file: .env
+    volumes:
+      - static_volume:/usr/src/app/.static
+      - media_volume:/usr/src/app/media
+      - logs_app:/var/log/app
+    depends_on:
+      - redis
+      - postgres
+      - server
+
+volumes:
+  static_volume:
+  media_volume:
+  redis_data:
+  postgres_data:
+  certs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./var/certs
+
+  logs_app:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./log/app
+
+  logs_nginx:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./log/nginx
