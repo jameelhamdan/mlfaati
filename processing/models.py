@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.db.models import UniqueConstraint
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django_lifecycle import LifecycleModelMixin
@@ -35,7 +36,12 @@ class Pipeline(LifecycleModelMixin, models.Model):
         return self.TYPES(self.target_type)
 
     class Meta:
-        unique_together = [['name', 'folder']]
+        constraints = [
+            UniqueConstraint(
+                name='%(app_label)s_%(class)s_unique_name_folder',
+                fields=['name', 'folder'],
+            ),
+        ]
         ordering = ['-id']
         verbose_name = _('Pipeline')
         verbose_name_plural = _('Pipelines')

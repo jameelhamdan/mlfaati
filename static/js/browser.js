@@ -4,7 +4,12 @@
         data() {
             return {
                 loading: true,
-                rootApiUrl: rootApiUrl,
+                space_id: space_id,
+                urls:{
+                    browse: rootApiUrl,
+                    addFolder: addFolderApiUrl,
+                    addFile: addFileApiUrl,
+                },
                 current_detail: null,
                 data: {
                     current_folder: null,
@@ -64,7 +69,7 @@
             },
         },
         created() {
-            this.loadData(this.rootApiUrl);
+            this.loadData(this.urls.browse);
         },
         methods: {
             selectDetail(type, details) {
@@ -82,11 +87,7 @@
             },
             openFolder(folder = null) {
                 this.unselectDetail();
-                if (folder) {
-                    this.loadData(folder.url);
-                } else {
-                    this.loadData(this.rootApiUrl);
-                }
+                this.loadData(folder ? folder.url : this.urls.browse);
             },
             openFile(file) {
                 window.open(file.serve_url, '_blank').focus();
@@ -99,6 +100,43 @@
                     $this.loading = false;
                 });
             },
+            refreshData (){
+                this.loadData(this.data.current_folder ? this.data.current_folder.url : this.urls.browse);
+            },
+            addFolder() {
+                let $this = this;
+                Swal.fire({
+                    title: 'Add Folder',
+                    input: 'text',
+                    inputAttributes: {
+                        autocapitalize: 'off',
+                        placeholder: 'Folder name'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Add',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: () => !Swal.isLoading(),
+                    preConfirm: (folder_name) => {
+                        return axios.post($this.urls.addFolder, {
+                            'space': $this.space_id,
+                            'parent': $this.data.current_folder ? $this.data.current_folder.id : null,
+                            'name': folder_name
+                        }).then(res => {
+                            return res.data;
+                        }).catch(err => {
+                            console.error(err);
+                            Swal.showValidationMessage(`Request failed: ${err}`);
+                        });
+                    },
+                }).then((result) => {
+                    if (!result || !result.isConfirmed) return;
+                    $this.refreshData();
+                    Swal.fire({
+                        'icon': 'success',
+                        'text': 'Added Folder'
+                    });
+                })
+            }
         }
     })
 
@@ -153,6 +191,5 @@
             </div>
         `
     });
-
     app.mount('#browserApp');
 }
