@@ -25,8 +25,8 @@ services:
       - ./conf/nginx.http.conf:/etc/nginx/conf.d/app.conf
 
     ports:
-      - 80:80
-      - 443:443
+      - 127.0.0.1:8001:80
+      - 127.0.0.1:4430:443
     depends_on:
       - server
 
@@ -38,6 +38,10 @@ services:
       - static_volume:/usr/src/app/.static
       - media_volume:/usr/src/app/media
       - logs_app:/var/log/app
+      # Use this to custom settings without rebuilding image
+      - ./settings/conf.py:/var/log/app/settings/conf.py
+      # Use this to install extra dependencies without rebuilding image
+      - ./requirements-extra.txt:/var/log/app/requirements-extra.txt
     depends_on:
       - redis
       - postgres
@@ -65,18 +69,18 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: ./var/certs
+      device: /var/certs
 
   logs_app:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./log/app
+      device: /log/app
 
   logs_nginx:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./log/nginx
+      device: /log/nginx
