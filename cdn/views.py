@@ -46,14 +46,16 @@ class BaseServeView(SingleObjectMixin, View):
         except UnicodeEncodeError:
             file_expr = "filename*=utf-8''{}".format(quote(file_name))
 
-        response['content-disposition'] = 'attachment; %s' % file_expr
+        response['content-disposition'] = 'inline; %s' % file_expr
+        if self.request.GET.get('as_attachment') == 'true':
+            response['content-disposition'] = 'attachment; %s' % file_expr
 
         try:
             file_path.encode('ascii')
         except UnicodeEncodeError:
             file_path = quote(file_path)
 
-        response['content_type'] = self.object.content_type
+        response['Content-Type'] = self.object.content_type
         # Nginx header for proxying files
         response['X-Accel-Redirect'] = file_path
         return response

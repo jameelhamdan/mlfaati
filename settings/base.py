@@ -17,7 +17,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 ADMINS = (
-    ('Jameel', 'jameelhamdan99@yahoo.com')
+    ('Jameel', 'jameelhamdan99@yahoo.com'),
 )
 
 
@@ -87,13 +87,25 @@ DATABASES = {
     'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600),
 }
 
+DEFAULT_REDIS_URL = os.getenv('DEFAULT_REDIS_URL', 'redis://localhost:6379/0')
+CELERY_REDIS_URL = os.getenv('CELERY_REDIS_URL', DEFAULT_REDIS_URL)
+
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
-    }
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': DEFAULT_REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+    },
+    'celery': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': CELERY_REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+    },
 }
-
 
 AUTH_USER_MODEL = 'users.User'
 SESSION_ENGINE = 'qsessions.backends.cached_db'
@@ -190,8 +202,8 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = CELERY_REDIS_URL
+CELERY_RESULT_BACKEND = CELERY_REDIS_URL
 
 ENABLE_TRANSFORMATIONS = True
 ENABLE_ASYNC = True
