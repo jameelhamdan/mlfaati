@@ -31,6 +31,8 @@
                 } else {
                     current.previous = null;
                 }
+
+                current.full_path = `/${current.path.join('/')}`;
                 return current
             },
             folderList() {
@@ -48,7 +50,7 @@
             fileList() {
                 let list = this.data.files;
                 let current_folder = this.data.current_folder;
-                let folder_path = `/${current_folder? current_folder.path.join('/'): ''}`;
+                let folder_path = `/${current_folder?.full_path ?? ''}`;
                 list.forEach(function (file, index) {
                     file.created_on_display = moment(file.created_on).fromNow();
                     file.updated_on_display = moment(file.updated_on).fromNow();
@@ -87,7 +89,7 @@
             },
             openFolder(folder = null) {
                 this.unselectDetail();
-                this.loadData(folder ? folder.url : this.urls.browse);
+                this.loadData(folder?.url ?? this.urls.browse);
             },
             openFile(file) {
                 window.open(file.serve_url, '_blank').focus();
@@ -101,12 +103,15 @@
                 });
             },
             refreshData (){
-                this.loadData(this.data.current_folder ? this.data.current_folder.url : this.urls.browse);
+                this.loadData(this.data.current_folder?.url ?? this.urls.browse);
             },
             addFolder() {
                 let $this = this;
+                let folder_name_path = ''
                 Swal.fire({
-                    title: 'Add Folder',
+                    icon: 'question',
+                    iconHtml: '<i class="ft-folder"></i>',
+                    title: `Add Folder To ${'./' + $this.data.current_folder?.name ?? 'Root'}`,
                     input: 'text',
                     inputAttributes: {
                         autocapitalize: 'off',
@@ -119,7 +124,7 @@
                     preConfirm: (folder_name) => {
                         return axios.post($this.urls.addFolder, {
                             'space': $this.space_id,
-                            'parent': $this.data.current_folder ? $this.data.current_folder.id : null,
+                            'parent': $this.data.current_folder?.id ?? null,
                             'name': folder_name
                         }).then(res => {
                             return res.data;

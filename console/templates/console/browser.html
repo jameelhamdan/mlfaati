@@ -22,10 +22,10 @@
                         <div class="col-12 col-sm-2 mt-3 mt-sm-0 d-flex justify-content-sm-end">
                             <!-- Actions -->
                             <div class=" btn-group btn-group-justified text-right ">
-                                <a title="{% trans 'Add File' %}" class="btn btn-sm btn-outline-success">
+                                <a title="{% trans 'Upload File' %}" class="btn btn-sm btn-outline-success">
                                     <i class="ft-file-plus"></i>
                                 </a>
-                                <a @click="addFolder" title="{% trans 'Add Folder' %}" class="btn btn-sm btn-outline-success">
+                                <a @click="addFolder" title="{% trans 'New Folder' %}" class="btn btn-sm btn-outline-success">
                                     <i class="ft-folder-plus"></i>
                                 </a>
                                 <a href="{% url 'console:space_update' pk=space.pk %}" title="{% trans 'Space Settings' %}" class="btn btn-sm btn-outline-primary">
@@ -51,7 +51,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr @dblclick.native="openFolder(currentFolder.previous)" v-if="currentFolder" class="show-pointer">
+                        <tr @dblclick.native="openFolder(currentFolder.previous)" v-if="currentFolder" unselectable="on" class="show-pointer">
                             <td>#</td>
                             <td><i class="ft-folder"></i> ..</td>
                             <td>Previous Folder</td>
