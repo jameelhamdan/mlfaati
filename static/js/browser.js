@@ -128,10 +128,7 @@
                             'name': folder_name
                         }).then(res => {
                             return res.data;
-                        }).catch(err => {
-                            console.error(err);
-                            Swal.showValidationMessage(`Request failed: ${err}`);
-                        });
+                        }).catch(handleSwalAxiosError);
                     },
                 }).then((result) => {
                     if (!result || !result.isConfirmed) return;

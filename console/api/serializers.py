@@ -55,6 +55,7 @@ class AddFolderSerializer(serializers.ModelSerializer):
         """
         Check that Folder is within same space
         """
+        name = data.get('name')
         space = data.get('space')
         parent_folder = data.get('parent')
 
@@ -64,6 +65,15 @@ class AddFolderSerializer(serializers.ModelSerializer):
         if parent_folder:
             if space.id != parent_folder.space_id:
                 raise serializers.ValidationError({'parent': _('Parent folder does not belong to the selected space.')})
+
+        # Check unique constraint
+        qs = core.models.Folder.objects.filter(parent_id=parent_folder)
+
+        if name and qs.filter(name=name).exists():
+            raise serializers.ValidationError(
+                {'name':  _('Parent Folder already has child with same name.')}, code='unique_together'
+            )
+
         return data
 
     class Meta:

@@ -128,3 +128,18 @@ const humanFileSize = function (bytes, si = true, dp = 1) {
 
     return bytes.toFixed(dp) + ' ' + units[u];
 }
+
+
+const handleSwalAxiosError = function (err) {
+    let res = err.response;
+    if (res && res.status === 400) {
+        let message = '<span class="text-left">';
+        for (const key in res.data) {
+            message += `${key}: ${res.data[key]}`;
+        }
+        message += '</span>';
+        Swal.showValidationMessage(message);
+    } else {
+        Swal.showValidationMessage(`Request failed: ${err}`);
+    }
+}
