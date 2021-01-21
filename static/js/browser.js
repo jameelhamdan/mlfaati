@@ -107,11 +107,11 @@
             },
             addFolder() {
                 let $this = this;
-                let folder_name_path = ''
+                let folder_name = $this.data.current_folder? './' + $this.data.current_folder.name : 'Root';
                 Swal.fire({
                     icon: 'question',
                     iconHtml: '<i class="ft-folder"></i>',
-                    title: `Add Folder To ${'./' + $this.data.current_folder?.name ?? 'Root'}`,
+                    title: `Add Folder To ${folder_name}`,
                     input: 'text',
                     inputAttributes: {
                         autocapitalize: 'off',
