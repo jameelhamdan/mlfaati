@@ -177,7 +177,7 @@ class Folder(LifecycleModelMixin, TreeNode):
 class File(LifecycleModelMixin, models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
     name = models.CharField(max_length=256, db_index=True)
-    content_type = models.CharField(max_length=32, db_index=True)
+    content_type = models.CharField(max_length=144, db_index=True)
     content_length = models.IntegerField(default=0)
     content = models.FileField(upload_to=UploadToPathAndRename())
     metadata = models.JSONField(default=dict, blank=True)

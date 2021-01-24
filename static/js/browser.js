@@ -195,7 +195,9 @@
                         const formData = new FormData();
                         formData.append('content', file);
                         formData.append('space', $this.space_id);
-                        formData.append('folder', folder?.id ?? null);
+                        if(!!folder){
+                            formData.append('folder', folder?.id ?? null);
+                        }
 
                         return axios.post($this.urls.addFile, formData, {
                             headers: {
