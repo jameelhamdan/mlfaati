@@ -2,6 +2,7 @@ from django.urls import reverse
 from rest_framework import serializers
 import core.models
 import processing.models
+from django.utils.translation import gettext_lazy as _
 
 
 class PipelineSerializer(serializers.ModelSerializer):
@@ -45,3 +46,46 @@ class FolderSerializer(serializers.ModelSerializer):
     class Meta:
         model = core.models.Folder
         fields = ['id', 'name', 'path', 'url', 'files_count', 'files_total_size', 'full_path', 'created_on', 'updated_on']
+
+
+class AddFolderSerializer(serializers.ModelSerializer):
+    space = serializers.PrimaryKeyRelatedField(queryset=core.models.Space.objects.none(), required=True)
+
+    def validate(self, data):
+        """
+        Check that Folder is within same space
+        """
+        name = data.get('name')
+        space = data.get('space')
+        parent_folder = data.get('parent')
+
+        if not space:
+            return data
+
+        if parent_folder:
+            if space.id != parent_folder.space_id:
+                raise serializers.ValidationError({'parent': _('Parent folder does not belong to the selected space.')})
+
+        # Check unique constraint
+        qs = core.models.Folder.objects.filter(parent_id=parent_folder)
+
+        if name and qs.filter(name=name).exists():
+            raise serializers.ValidationError(
+                {'name':  _('Parent Folder already has child with same name.')}, code='unique_together'
+            )
+
+        return data
+
+    class Meta:
+        model = core.models.Folder
+        fields = ['name', 'parent', 'space']
+
+    def __init__(self, space_qs, *args, **kwargs):
+        super(AddFolderSerializer, self).__init__(*args, **kwargs)
+        self.fields['space'].queryset = space_qs
+
+
+class UpdateFolderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = core.models.Folder
+        fields = ['name']

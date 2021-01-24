@@ -4,7 +4,12 @@
         data() {
             return {
                 loading: true,
-                rootApiUrl: rootApiUrl,
+                space_id: space_id,
+                urls:{
+                    browse: rootApiUrl,
+                    addFolder: addFolderApiUrl,
+                    addFile: addFileApiUrl,
+                },
                 current_detail: null,
                 data: {
                     current_folder: null,
@@ -26,6 +31,8 @@
                 } else {
                     current.previous = null;
                 }
+
+                current.full_path = `/${current.path.join('/')}`;
                 return current
             },
             folderList() {
@@ -43,7 +50,7 @@
             fileList() {
                 let list = this.data.files;
                 let current_folder = this.data.current_folder;
-                let folder_path = `/${current_folder? current_folder.path.join('/'): ''}`;
+                let folder_path = `/${current_folder?.full_path ?? ''}`;
                 list.forEach(function (file, index) {
                     file.created_on_display = moment(file.created_on).fromNow();
                     file.updated_on_display = moment(file.updated_on).fromNow();
@@ -64,7 +71,7 @@
             },
         },
         created() {
-            this.loadData(this.rootApiUrl);
+            this.loadData(this.urls.browse);
         },
         methods: {
             selectDetail(type, details) {
@@ -82,11 +89,7 @@
             },
             openFolder(folder = null) {
                 this.unselectDetail();
-                if (folder) {
-                    this.loadData(folder.url);
-                } else {
-                    this.loadData(this.rootApiUrl);
-                }
+                this.loadData(folder?.url ?? this.urls.browse);
             },
             openFile(file) {
                 window.open(file.serve_url, '_blank').focus();
@@ -99,6 +102,43 @@
                     $this.loading = false;
                 });
             },
+            refreshData (){
+                this.loadData(this.data.current_folder?.url ?? this.urls.browse);
+            },
+            addFolder() {
+                let $this = this;
+                let folder_name = $this.data.current_folder? './' + $this.data.current_folder.name : 'Root';
+                Swal.fire({
+                    icon: 'question',
+                    iconHtml: '<i class="ft-folder"></i>',
+                    title: `Add Folder To ${folder_name}`,
+                    input: 'text',
+                    inputAttributes: {
+                        autocapitalize: 'off',
+                        placeholder: 'Folder name'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Add',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: () => !Swal.isLoading(),
+                    preConfirm: (folder_name) => {
+                        return axios.post($this.urls.addFolder, {
+                            'space': $this.space_id,
+                            'parent': $this.data.current_folder?.id ?? null,
+                            'name': folder_name
+                        }).then(res => {
+                            return res.data;
+                        }).catch(handleSwalAxiosError);
+                    },
+                }).then((result) => {
+                    if (!result || !result.isConfirmed) return;
+                    $this.refreshData();
+                    Swal.fire({
+                        'icon': 'success',
+                        'text': 'Added Folder'
+                    });
+                })
+            }
         }
     })
 
@@ -153,6 +193,5 @@
             </div>
         `
     });
-
     app.mount('#browserApp');
 }

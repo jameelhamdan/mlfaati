@@ -10,8 +10,8 @@
         <div class="col-12">
             <div class="card shadow-sm mb-4">
                 <div class="card-header">
-                    <div class="row align-items-center">
-                        <div class="col">
+                    <div class="row">
+                        <div class="col-12 col-sm-10">
                             <h2 class="h5 my-0">
                                 <a class="mx-1" @click="openFolder(null)">{{ space }}/</a>
                                 <a class="mx-1" @click="openFolder(folder)" v-if="currentFolder"
@@ -19,11 +19,19 @@
                                 <a class="mx-1" @click="openFolder(currentFolder)" v-if="currentFolder">[[ currentFolder.name ]]/</a>
                             </h2>
                         </div>
-                        <div class="col text-right">
+                        <div class="col-12 col-sm-2 mt-3 mt-sm-0 d-flex justify-content-sm-end">
                             <!-- Actions -->
-                            <a href="{% url 'console:space_update' pk=space.pk %}" title="{% trans 'Space Settings' %}" class="btn btn-sm btn-outline-primary">
-                                <i class="ft-settings"></i>
-                            </a>
+                            <div class=" btn-group btn-group-justified text-right ">
+                                <a title="{% trans 'Upload File' %}" class="btn btn-sm btn-outline-success">
+                                    <i class="ft-file-plus"></i>
+                                </a>
+                                <a @click="addFolder" title="{% trans 'New Folder' %}" class="btn btn-sm btn-outline-success">
+                                    <i class="ft-folder-plus"></i>
+                                </a>
+                                <a href="{% url 'console:space_update' pk=space.pk %}" title="{% trans 'Space Settings' %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="ft-settings"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -43,7 +51,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr @click="openFolder(currentFolder.previous)" v-if="currentFolder" class="show-pointer">
+                        <tr @dblclick.native="openFolder(currentFolder.previous)" v-if="currentFolder" unselectable="on" class="show-pointer">
                             <td>#</td>
                             <td><i class="ft-folder"></i> ..</td>
                             <td>Previous Folder</td>
@@ -101,7 +109,10 @@
 {% block javascript %}
     <script src="{% static 'vendor/vue/vue.min.js' %}"></script>
     <script>
+        const space_id = "{{ space.pk }}";
         const rootApiUrl = "{% url 'console:api_browser' pk=space.pk %}";
+        const addFolderApiUrl = "{% url 'console:api_folder_add' %}";
+        const addFileApiUrl = "";
     </script>
     <script src="{% static 'js/browser.js' %}"></script>
 {% endblock %}

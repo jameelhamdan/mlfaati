@@ -2,12 +2,14 @@ import uuid
 import os
 from datetime import timedelta
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
+from django.db.models import UniqueConstraint, Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.db import models, transaction
 from django_lifecycle import LifecycleModelMixin, hook, BEFORE_CREATE, AFTER_CREATE, BEFORE_UPDATE, AFTER_UPDATE
 from django.utils.deconstruct import deconstructible
-from tree_queries.models import TreeNode, TreeNodeForeignKey
+from tree_queries.models import TreeNode, TreeNodeForeignKey, TreeQuerySet
 from app import config
 from common import validators, crypt
 import processing.tasks
@@ -71,6 +73,11 @@ class Space(LifecycleModelMixin, models.Model):
         return self.name
 
 
+class FolderQueryset(TreeQuerySet):
+    def owned(self, user):
+        return self.filter(space__owner_id=user.pk)
+
+
 class Folder(LifecycleModelMixin, TreeNode):
     name = models.CharField(max_length=256, db_index=True)
     parent: 'Folder' = TreeNodeForeignKey(
@@ -86,6 +93,8 @@ class Folder(LifecycleModelMixin, TreeNode):
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
 
+    objects = FolderQueryset.as_manager()
+
     @property
     def full_path(self):
         return PATH_CONCAT_CHARACTER.join(self.path) + PATH_CONCAT_CHARACTER
@@ -100,6 +109,29 @@ class Folder(LifecycleModelMixin, TreeNode):
             path = [a.name for a in self.parent.ancestors(include_self=True)]
 
         return path + [self.name]
+
+    def _perform_unique_checks(self, unique_checks):
+        errors = super()._perform_unique_checks(unique_checks)
+        qs = self.__class__.objects.filter(name=self.name)
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
+
+        if self.parent_id:
+            qs = qs.filter(parent_id=self.parent_id)
+        else:
+            qs = qs.filter(parent_id__isnull=True)
+
+        error_already_raised = False
+
+        if NON_FIELD_ERRORS in errors.keys() and errors[NON_FIELD_ERRORS][0].code == 'unique_together':
+            error_already_raised = True
+
+        if not error_already_raised and qs.exists():
+            errors.setdefault(NON_FIELD_ERRORS, []).append(
+                ValidationError(_('Folder with this Name and Parent already exists.'), code='unique_together')
+            )
+
+        return errors
 
     @hook(BEFORE_CREATE)
     def before_create(self):
@@ -122,7 +154,17 @@ class Folder(LifecycleModelMixin, TreeNode):
 
     class Meta:
         index_together = [['path', 'space']]
-        unique_together = [['name', 'parent']]
+        constraints = [
+            UniqueConstraint(
+                name='%(app_label)s_%(class)s_unique_name_parent_nullable',
+                fields=['name'],
+                condition=Q(parent__isnull=True)
+            ),
+            UniqueConstraint(
+                name='%(app_label)s_%(class)s_unique_name_parent',
+                fields=['name', 'parent'],
+            ),
+        ]
         ordering = ['-id']
         verbose_name = _('Folder')
         verbose_name_plural = _('Folders')
@@ -195,7 +237,7 @@ class File(LifecycleModelMixin, models.Model):
         if not config.ENABLE_TRANSFORMATIONS:
             return
 
-        if self.parent_id:
+        if self.parent_id or not self.folder_id:
             return
 
         if config.ENABLE_ASYNC:
@@ -248,9 +290,21 @@ class File(LifecycleModelMixin, models.Model):
         if data['uuid'] != str(self.pk) or data['space_id'] != str(self.space_id):
             raise FileAccessError()
 
+        return True
+
     class Meta:
-        unique_together = [['name', 'folder']]
         index_together = [['name', 'folder'], ['name', 'folder', 'space']]
+        constraints = [
+            UniqueConstraint(
+                name='%(app_label)s_%(class)s_unique_name_folder_nullable',
+                fields=['name'],
+                condition=Q(folder__isnull=True),
+            ),
+            UniqueConstraint(
+                name='%(app_label)s_%(class)s_unique_name_folder',
+                fields=['name', 'folder'],
+            ),
+        ]
         ordering = ['-id']
         verbose_name = _('File')
         verbose_name_plural = _('Files')
