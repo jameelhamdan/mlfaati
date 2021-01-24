@@ -20,8 +20,8 @@
                         </div>
                         <div class="col-12 col-sm-2 mt-3 mt-sm-0 d-flex justify-content-sm-end">
                             <!-- Actions -->
-                            <div class=" btn-group btn-group-justified text-right ">
-                                <a title="{% trans 'Upload File' %}" class="btn btn-sm btn-outline-success">
+                            <div class="btn-group btn-group-justified text-right">
+                                <a @click="uploadFile(currentFolder)" title="{% trans 'Upload File' %}" class="btn btn-sm btn-outline-success">
                                     <i class="ft-file-plus"></i>
                                 </a>
                                 <a @click="addFolder" title="{% trans 'New Folder' %}" class="btn btn-sm btn-outline-success">
@@ -114,7 +114,7 @@
         const space_id = "{{ space.pk }}";
         const rootApiUrl = "{% url 'console:api_browser' pk=space.pk %}";
         const addFolderApiUrl = "{% url 'console:api_folder_add' %}";
-        const addFileApiUrl = "";
+        const addFileApiUrl = "{% url 'console:api_file_add' %}";
     </script>
     <script src="{% static 'js/browser.js' %}"></script>
 {% endblock %}

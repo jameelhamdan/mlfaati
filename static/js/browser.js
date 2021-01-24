@@ -50,7 +50,7 @@
             fileList() {
                 let list = this.data.files;
                 let current_folder = this.data.current_folder;
-                let folder_path = `/${current_folder?.full_path ?? ''}`;
+                let folder_path = current_folder?.full_path ?? '/';
                 list.forEach(function (file, index) {
                     file.created_on_display = moment(file.created_on).fromNow();
                     file.updated_on_display = moment(file.updated_on).fromNow();
@@ -110,7 +110,7 @@
                 let folder_name = $this.data.current_folder? './' + $this.data.current_folder.name : 'Root';
                 Swal.fire({
                     icon: 'question',
-                    iconHtml: '<i class="ft-folder"></i>',
+                    iconHtml: '<i class="ft-folder-plus"></i>',
                     title: `Add Folder To ${folder_name}`,
                     input: 'text',
                     inputAttributes: {
@@ -170,6 +170,47 @@
                     Swal.fire({
                         'icon': 'success',
                         'text': 'Renamed Folder'
+                    });
+                })
+            },
+            uploadFile(folder = null) {
+                let $this = this;
+                let folder_name = folder?.name ?? 'Root';
+
+                Swal.fire({
+                    icon: 'question',
+                    iconHtml: '<i class="ft-file-plus"></i>',
+                    title: `Upload file to ${folder_name} Folder`,
+                    input: 'file',
+                    inputAttributes: {
+                        placeholder: 'Select File',
+                        accept: '*',
+                        'aria-label': 'Select file to upload'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Upload',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: () => !Swal.isLoading(),
+                    preConfirm: (file) => {
+                        const formData = new FormData();
+                        formData.append('content', file);
+                        formData.append('space', $this.space_id);
+                        formData.append('folder', folder?.id ?? null);
+
+                        return axios.post($this.urls.addFile, formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                            }
+                        }).then(res => {
+                            return res.data;
+                        }).catch(handleSwalAxiosError);
+                    },
+                }).then((result) => {
+                    if (!result || !result.isConfirmed) return;
+                    $this.refreshData();
+                    Swal.fire({
+                        'icon': 'success',
+                        'text': 'Added File',
                     });
                 })
             }
