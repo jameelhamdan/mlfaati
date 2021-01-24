@@ -123,9 +123,9 @@
                     allowOutsideClick: () => !Swal.isLoading(),
                     preConfirm: (folder_name) => {
                         return axios.post($this.urls.addFolder, {
-                            'space': $this.space_id,
-                            'parent': $this.data.current_folder?.id ?? null,
-                            'name': folder_name
+                            space: $this.space_id,
+                            parent: $this.data.current_folder?.id ?? null,
+                            name: folder_name
                         }).then(res => {
                             return res.data;
                         }).catch(handleSwalAxiosError);
@@ -136,6 +136,40 @@
                     Swal.fire({
                         'icon': 'success',
                         'text': 'Added Folder'
+                    });
+                })
+            },
+            renameFolder(folder) {
+                let $this = this;
+                let folder_name = folder.name;
+                Swal.fire({
+                    icon: 'question',
+                    iconHtml: '<i class="ft-folder"></i>',
+                    title: 'Rename Folder',
+                    inputValue: folder_name,
+                    input: 'text',
+                    inputAttributes: {
+                        autocapitalize: 'off',
+                        placeholder: 'Folder name'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Rename',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: () => !Swal.isLoading(),
+                    preConfirm: (folder_name) => {
+                        return axios.patch(folder.update_url, {
+                            name: folder_name
+                        }).then(res => {
+                            folder.name = res.data.name;
+                            return res.data;
+                        }).catch(handleSwalAxiosError);
+                    },
+                }).then((result) => {
+                    if (!result || !result.isConfirmed) return;
+                    $this.refreshData();
+                    Swal.fire({
+                        'icon': 'success',
+                        'text': 'Renamed Folder'
                     });
                 })
             }

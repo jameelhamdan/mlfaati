@@ -37,15 +37,22 @@ class FileSerializer(serializers.ModelSerializer):
 
 class FolderSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
+    update_url = serializers.SerializerMethodField()
     files_count = serializers.IntegerField(default=0)
     files_total_size = serializers.IntegerField(default=0)
 
     def get_url(self, obj):
         return reverse('console:api_browser_folder', kwargs={'pk': obj.space_id, 'folder_id': obj.pk})
 
+    def get_update_url(self, obj):
+        return reverse('console:api_folder_update', kwargs={'pk': obj.pk})
+
     class Meta:
         model = core.models.Folder
-        fields = ['id', 'name', 'path', 'url', 'files_count', 'files_total_size', 'full_path', 'created_on', 'updated_on']
+        fields = [
+            'id', 'name', 'path', 'url', 'files_count', 'files_total_size', 'full_path',
+            'update_url', 'created_on', 'updated_on'
+        ]
 
 
 class AddFolderSerializer(serializers.ModelSerializer):

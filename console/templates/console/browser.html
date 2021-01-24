@@ -14,8 +14,7 @@
                         <div class="col-12 col-sm-10">
                             <h2 class="h5 my-0">
                                 <a class="mx-1" @click="openFolder(null)">{{ space }}/</a>
-                                <a class="mx-1" @click="openFolder(folder)" v-if="currentFolder"
-                                   v-for="folder in currentFolder.ancestors">[[ folder.name ]]/</a>
+                                <a class="mx-1" @click="openFolder(folder)" v-if="currentFolder" v-for="folder in currentFolder.ancestors">[[ folder.name ]]/</a>
                                 <a class="mx-1" @click="openFolder(currentFolder)" v-if="currentFolder">[[ currentFolder.name ]]/</a>
                             </h2>
                         </div>
@@ -87,7 +86,10 @@
                 <div v-if="current_detail !== null">
                     <div class="card-header border-bottom border-light d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                         <h2 class="h5 mb-0">Selected [[ current_detail.type ]]</h2>
-                        <a @click="unselectDetail" title="{% trans 'Close' %}"><i class="ft-x ft-2x"></i></a>
+                        <div class="btn-group">
+                            <a v-if="current_detail.type === 'Folder'" @click="renameFolder(current_detail.data)" title="{% trans 'Rename' %}"><i class="ft-edit ft-2x"></i></a>
+                            <a @click="unselectDetail" title="{% trans 'Close' %}"><i class="ft-x ft-2x"></i></a>
+                        </div>
                     </div>
                     <div class="card-body">
                         <file-details v-if="current_detail.type === 'File'" :details="current_detail.data"></file-details>
