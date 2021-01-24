@@ -43,7 +43,7 @@ class Space(LifecycleModelMixin, models.Model):
         PRIVATE = 'PRIVATE', _('Private')
 
         @classmethod
-        def as_dict(cls):
+        def as_dict(cls) -> dict:
             return {
                 cls.PUBLIC.name: cls.PUBLIC.value,
                 cls.PRIVATE.name: cls.PRIVATE.value,
@@ -69,7 +69,7 @@ class Space(LifecycleModelMixin, models.Model):
         verbose_name_plural = _('Spaces')
         default_permissions = []
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -96,7 +96,7 @@ class Folder(LifecycleModelMixin, TreeNode):
     objects = FolderQueryset.as_manager()
 
     @property
-    def full_path(self):
+    def full_path(self) -> str:
         return PATH_CONCAT_CHARACTER.join(self.path) + PATH_CONCAT_CHARACTER
 
     def get_path(self) -> list:
@@ -197,7 +197,7 @@ class File(LifecycleModelMixin, models.Model):
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
 
-    def get_path(self, with_space: bool = True):
+    def get_path(self, with_space: bool = True) -> str:
         folder_path = []
         if self.folder:
             folder_path = self.folder.path
@@ -278,7 +278,7 @@ class File(LifecycleModelMixin, models.Model):
             'space_id': str(self.space_id),
         }, timedelta(minutes=minutes))
 
-    def verify_access_token(self, token):
+    def verify_access_token(self, token: str) -> bool:
         """
         Check whether token is valid for this File
         :param token: Base64 encoded Token from get_access_token

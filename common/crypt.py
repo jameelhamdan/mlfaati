@@ -7,7 +7,7 @@ from django.conf import settings
 
 JWT_ALGORITHM = 'HS256'
 
-__all__ = ['encode_token', 'verify_token', 'jwt_exceptions']
+__all__ = ['encode_token', 'verify_token', 'jwt_exceptions', 'short_uuid']
 
 
 def encode_token(data: dict, exp_in: 'timedelta' = None, secret_key: str = settings.SECRET_KEY) -> str:
@@ -42,5 +42,5 @@ def verify_token(token: str, secret_key: str = settings.SECRET_KEY) -> dict:
     return jwt.decode(token, secret_key, leeway=timedelta(seconds=5), algorithms=[JWT_ALGORITHM, ])
 
 
-def short_uuid():
+def short_uuid() -> str:
     return base64.urlsafe_b64encode(uuid.uuid4().bytes).rstrip(b'=').decode('ascii')

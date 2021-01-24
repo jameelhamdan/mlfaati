@@ -40,8 +40,8 @@
                 list.forEach(function (folder, index) {
                     folder.created_on_display = moment(folder.created_on).fromNow();
                     folder.updated_on_display = moment(folder.updated_on).fromNow();
-                    folder.created_on = moment(folder.created_on).format("YYYY-MM-DD HH:mm:ss");
-                    folder.updated_on = moment(folder.updated_on).format("YYYY-MM-DD HH:mm:ss");
+                    folder.created_on = moment(folder.created_on).format(defaultDateTimeFormat);
+                    folder.updated_on = moment(folder.updated_on).format(defaultDateTimeFormat);
                     folder.size = folder.files_total_size ? humanFileSize(folder.files_total_size) : '';
                     folder.full_path = `/${folder.path.join('/')}`;
                 })
@@ -54,16 +54,16 @@
                 list.forEach(function (file, index) {
                     file.created_on_display = moment(file.created_on).fromNow();
                     file.updated_on_display = moment(file.updated_on).fromNow();
-                    file.created_on = moment(file.created_on).format("YYYY-MM-DD HH:mm:ss");
-                    file.updated_on = moment(file.updated_on).format("YYYY-MM-DD HH:mm:ss");
+                    file.created_on = moment(file.created_on).format(defaultDateTimeFormat);
+                    file.updated_on = moment(file.updated_on).format(defaultDateTimeFormat);
                     file.size = humanFileSize(file.content_length);
                     file.folder_path = folder_path;
 
                     list.forEach(function (childFile, index) {
                         childFile.created_on_display = moment(childFile.created_on).fromNow();
                         childFile.updated_on_display = moment(childFile.updated_on).fromNow();
-                        childFile.created_on = moment(childFile.created_on).format("YYYY-MM-DD HH:mm:ss");
-                        childFile.updated_on = moment(childFile.updated_on).format("YYYY-MM-DD HH:mm:ss");
+                        childFile.created_on = moment(childFile.created_on).format(defaultDateTimeFormat);
+                        childFile.updated_on = moment(childFile.updated_on).format(defaultDateTimeFormat);
                         childFile.size = humanFileSize(childFile.content_length);
                     });
                 })
