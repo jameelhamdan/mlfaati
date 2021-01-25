@@ -1,4 +1,4 @@
-from rest_framework import generics, response, permissions
+from rest_framework import generics, response, permissions, authentication
 from django.urls import path
 from rest_framework.generics import get_object_or_404
 from sql_util.aggregates import SubqueryCount, SubquerySum
@@ -6,9 +6,12 @@ import core.models
 from . import serializers
 
 
-class BaseBrowserView(generics.GenericAPIView):
+class BaseAPIView:
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.SessionAuthentication]
 
+
+class BaseBrowserView(BaseAPIView, generics.GenericAPIView):
     folders_queryset = core.models.Folder.objects.annotate(
         files_count=SubqueryCount('files'),
         files_total_size=SubquerySum('files__content_length'),
@@ -72,8 +75,7 @@ class FolderBrowserView(BaseBrowserView):
         return super().retrieve(space, folder, *args, **kwargs)
 
 
-class AddFolderView(generics.CreateAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+class AddFolderView(BaseAPIView, generics.CreateAPIView):
     serializer_class = serializers.AddFolderSerializer
 
     def get_serializer(self, *args, **kwargs):
@@ -81,16 +83,14 @@ class AddFolderView(generics.CreateAPIView):
         return super().get_serializer(*args, **kwargs)
 
 
-class UpdateFolderView(generics.UpdateAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+class UpdateFolderView(BaseAPIView, generics.UpdateAPIView):
     serializer_class = serializers.UpdateFolderSerializer
 
     def get_queryset(self):
         return core.models.Folder.objects.owned(self.request.user)
 
 
-class AddFileView(generics.CreateAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+class AddFileView(BaseAPIView, generics.CreateAPIView):
     serializer_class = serializers.AddFileSerializer
 
     def get_serializer(self, *args, **kwargs):

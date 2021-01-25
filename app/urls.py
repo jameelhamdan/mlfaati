@@ -17,6 +17,7 @@ if settings.DEBUG:
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('cdn/', include('cdn.urls')),
+    path('api/', include('api.urls')),
     path('console/', include('console.urls')),
     path('auth/', include('users.urls')),
     path('', IndexView.as_view(), name='index'),
