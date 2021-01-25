@@ -40,8 +40,8 @@
                 list.forEach(function (folder, index) {
                     folder.created_on_display = moment(folder.created_on).fromNow();
                     folder.updated_on_display = moment(folder.updated_on).fromNow();
-                    folder.created_on = moment(folder.created_on).format("YYYY-MM-DD HH:mm:ss");
-                    folder.updated_on = moment(folder.updated_on).format("YYYY-MM-DD HH:mm:ss");
+                    folder.created_on = moment(folder.created_on).format(defaultDateTimeFormat);
+                    folder.updated_on = moment(folder.updated_on).format(defaultDateTimeFormat);
                     folder.size = folder.files_total_size ? humanFileSize(folder.files_total_size) : '';
                     folder.full_path = `/${folder.path.join('/')}`;
                 })
@@ -50,20 +50,20 @@
             fileList() {
                 let list = this.data.files;
                 let current_folder = this.data.current_folder;
-                let folder_path = `/${current_folder?.full_path ?? ''}`;
+                let folder_path = current_folder?.full_path ?? '/';
                 list.forEach(function (file, index) {
                     file.created_on_display = moment(file.created_on).fromNow();
                     file.updated_on_display = moment(file.updated_on).fromNow();
-                    file.created_on = moment(file.created_on).format("YYYY-MM-DD HH:mm:ss");
-                    file.updated_on = moment(file.updated_on).format("YYYY-MM-DD HH:mm:ss");
+                    file.created_on = moment(file.created_on).format(defaultDateTimeFormat);
+                    file.updated_on = moment(file.updated_on).format(defaultDateTimeFormat);
                     file.size = humanFileSize(file.content_length);
                     file.folder_path = folder_path;
 
-                    list.forEach(function (childFile, index) {
+                    file.children.forEach(function (childFile, index) {
                         childFile.created_on_display = moment(childFile.created_on).fromNow();
                         childFile.updated_on_display = moment(childFile.updated_on).fromNow();
-                        childFile.created_on = moment(childFile.created_on).format("YYYY-MM-DD HH:mm:ss");
-                        childFile.updated_on = moment(childFile.updated_on).format("YYYY-MM-DD HH:mm:ss");
+                        childFile.created_on = moment(childFile.created_on).format(defaultDateTimeFormat);
+                        childFile.updated_on = moment(childFile.updated_on).format(defaultDateTimeFormat);
                         childFile.size = humanFileSize(childFile.content_length);
                     });
                 })
@@ -110,7 +110,7 @@
                 let folder_name = $this.data.current_folder? './' + $this.data.current_folder.name : 'Root';
                 Swal.fire({
                     icon: 'question',
-                    iconHtml: '<i class="ft-folder"></i>',
+                    iconHtml: '<i class="ft-folder-plus"></i>',
                     title: `Add Folder To ${folder_name}`,
                     input: 'text',
                     inputAttributes: {
@@ -123,9 +123,9 @@
                     allowOutsideClick: () => !Swal.isLoading(),
                     preConfirm: (folder_name) => {
                         return axios.post($this.urls.addFolder, {
-                            'space': $this.space_id,
-                            'parent': $this.data.current_folder?.id ?? null,
-                            'name': folder_name
+                            space: $this.space_id,
+                            parent: $this.data.current_folder?.id ?? null,
+                            name: folder_name
                         }).then(res => {
                             return res.data;
                         }).catch(handleSwalAxiosError);
@@ -136,6 +136,83 @@
                     Swal.fire({
                         'icon': 'success',
                         'text': 'Added Folder'
+                    });
+                })
+            },
+            renameFolder(folder) {
+                let $this = this;
+                let folder_name = folder.name;
+                Swal.fire({
+                    icon: 'question',
+                    iconHtml: '<i class="ft-folder"></i>',
+                    title: 'Rename Folder',
+                    inputValue: folder_name,
+                    input: 'text',
+                    inputAttributes: {
+                        autocapitalize: 'off',
+                        placeholder: 'Folder name'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Rename',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: () => !Swal.isLoading(),
+                    preConfirm: (folder_name) => {
+                        return axios.patch(folder.update_url, {
+                            name: folder_name
+                        }).then(res => {
+                            folder.name = res.data.name;
+                            return res.data;
+                        }).catch(handleSwalAxiosError);
+                    },
+                }).then((result) => {
+                    if (!result || !result.isConfirmed) return;
+                    $this.refreshData();
+                    Swal.fire({
+                        'icon': 'success',
+                        'text': 'Renamed Folder'
+                    });
+                })
+            },
+            uploadFile(folder = null) {
+                let $this = this;
+                let folder_name = folder?.name ?? 'Root';
+
+                Swal.fire({
+                    icon: 'question',
+                    iconHtml: '<i class="ft-file-plus"></i>',
+                    title: `Upload file to ${folder_name} Folder`,
+                    input: 'file',
+                    inputAttributes: {
+                        placeholder: 'Select File',
+                        accept: '*',
+                        'aria-label': 'Select file to upload'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Upload',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: () => !Swal.isLoading(),
+                    preConfirm: (file) => {
+                        const formData = new FormData();
+                        formData.append('content', file);
+                        formData.append('space', $this.space_id);
+                        if(!!folder){
+                            formData.append('folder', folder?.id ?? null);
+                        }
+
+                        return axios.post($this.urls.addFile, formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                            }
+                        }).then(res => {
+                            return res.data;
+                        }).catch(handleSwalAxiosError);
+                    },
+                }).then((result) => {
+                    if (!result || !result.isConfirmed) return;
+                    $this.refreshData();
+                    Swal.fire({
+                        'icon': 'success',
+                        'text': 'Added File',
                     });
                 })
             }
@@ -163,6 +240,12 @@
                 <div class="col-12 mt-3">
                     <div class="small font-weight-bold mt-1">Location:</div>
                     <a class="text-700">[[ details.folder_path ]]</a>
+                </div>
+                <div v-if="!!details.children.length" class="col-12 mt-3">
+                    <div class="small font-weight-bold mt-1">Pipelines:</div>
+                    <a v-for="child in details.children" :href="child.serve_url" target="_blank" class="text-700 d-block">
+                        [[ child.pipeline.name ]] - <span :title="child.name">[[ child.short_name ]]</span> - [[ child.size ]]
+                    </a>
                 </div>
             </div>
         `

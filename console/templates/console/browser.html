@@ -14,15 +14,14 @@
                         <div class="col-12 col-sm-10">
                             <h2 class="h5 my-0">
                                 <a class="mx-1" @click="openFolder(null)">{{ space }}/</a>
-                                <a class="mx-1" @click="openFolder(folder)" v-if="currentFolder"
-                                   v-for="folder in currentFolder.ancestors">[[ folder.name ]]/</a>
+                                <a class="mx-1" @click="openFolder(folder)" v-if="currentFolder" v-for="folder in currentFolder.ancestors">[[ folder.name ]]/</a>
                                 <a class="mx-1" @click="openFolder(currentFolder)" v-if="currentFolder">[[ currentFolder.name ]]/</a>
                             </h2>
                         </div>
                         <div class="col-12 col-sm-2 mt-3 mt-sm-0 d-flex justify-content-sm-end">
                             <!-- Actions -->
-                            <div class=" btn-group btn-group-justified text-right ">
-                                <a title="{% trans 'Upload File' %}" class="btn btn-sm btn-outline-success">
+                            <div class="btn-group btn-group-justified text-right">
+                                <a @click="uploadFile(currentFolder)" title="{% trans 'Upload File' %}" class="btn btn-sm btn-outline-success">
                                     <i class="ft-file-plus"></i>
                                 </a>
                                 <a @click="addFolder" title="{% trans 'New Folder' %}" class="btn btn-sm btn-outline-success">
@@ -37,7 +36,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-8 col-lg-8 col-xl-9 col-xxl-9">
+        <div class="col-12 col-lg-8 col-xl-9 col-xxl-9">
             <div class="card shadow-sm">
                 <div class="table-responsive">
                     <table class="table align-items-center table-flush mb-0 rounded">
@@ -71,7 +70,7 @@
                         <tr @dblclick.native="openFile(file)" @click="selectDetail('File', file)" v-for="file in fileList" :class="['show-pointer', {'bg-light': file.selected}]">
                             <td>#</td>
                             <td>
-                                <i class="ft-file"></i> <span :title="file.name">[[ file.name ]]</span>
+                                <i class="ft-file"></i> <span :title="file.name">[[ file.short_name ]]</span>
                             </td>
                             <td>[[ file.content_type ]]</td>
                             <td class="d-none d-md-table-cell" :title="file.created_on">[[ file.created_on_display ]]</td>
@@ -82,12 +81,15 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4 col-lg-4 col-xl-3 col-xxl-3 mt-5 mt-md-0">
+        <div class="col-12 col-lg-4 col-xl-3 col-xxl-3 mt-5 mt-lg-0">
             <div id="detailsCard" class="card border-light shadow-sm mb-4">
                 <div v-if="current_detail !== null">
                     <div class="card-header border-bottom border-light d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                         <h2 class="h5 mb-0">Selected [[ current_detail.type ]]</h2>
-                        <a @click="unselectDetail" title="{% trans 'Close' %}"><i class="ft-x ft-2x"></i></a>
+                        <div class="btn-group">
+                            <a v-if="current_detail.type === 'Folder'" @click="renameFolder(current_detail.data)" title="{% trans 'Rename' %}"><i class="ft-edit ft-2x"></i></a>
+                            <a @click="unselectDetail" title="{% trans 'Close' %}"><i class="ft-x ft-2x"></i></a>
+                        </div>
                     </div>
                     <div class="card-body">
                         <file-details v-if="current_detail.type === 'File'" :details="current_detail.data"></file-details>
@@ -112,7 +114,7 @@
         const space_id = "{{ space.pk }}";
         const rootApiUrl = "{% url 'console:api_browser' pk=space.pk %}";
         const addFolderApiUrl = "{% url 'console:api_folder_add' %}";
-        const addFileApiUrl = "";
+        const addFileApiUrl = "{% url 'console:api_file_add' %}";
     </script>
     <script src="{% static 'js/browser.js' %}"></script>
 {% endblock %}

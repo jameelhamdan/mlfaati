@@ -20,7 +20,7 @@ class ChildrenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core.models.File
-        fields = ['id', 'name', 'serve_url', 'pipeline', 'content_type', 'content_length', 'created_on', 'updated_on']
+        fields = ['id', 'name', 'short_name', 'serve_url', 'pipeline', 'content_type', 'content_length', 'created_on', 'updated_on']
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -32,20 +32,27 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core.models.File
-        fields = ['id', 'name', 'serve_url', 'children', 'content_type', 'content_length', 'created_on', 'updated_on']
+        fields = ['id', 'name', 'short_name', 'serve_url', 'children', 'content_type', 'content_length', 'created_on', 'updated_on']
 
 
 class FolderSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
+    update_url = serializers.SerializerMethodField()
     files_count = serializers.IntegerField(default=0)
     files_total_size = serializers.IntegerField(default=0)
 
     def get_url(self, obj):
         return reverse('console:api_browser_folder', kwargs={'pk': obj.space_id, 'folder_id': obj.pk})
 
+    def get_update_url(self, obj):
+        return reverse('console:api_folder_update', kwargs={'pk': obj.pk})
+
     class Meta:
         model = core.models.Folder
-        fields = ['id', 'name', 'path', 'url', 'files_count', 'files_total_size', 'full_path', 'created_on', 'updated_on']
+        fields = [
+            'id', 'name', 'path', 'url', 'files_count', 'files_total_size', 'full_path',
+            'update_url', 'created_on', 'updated_on'
+        ]
 
 
 class AddFolderSerializer(serializers.ModelSerializer):
@@ -81,7 +88,7 @@ class AddFolderSerializer(serializers.ModelSerializer):
         fields = ['name', 'parent', 'space']
 
     def __init__(self, space_qs, *args, **kwargs):
-        super(AddFolderSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['space'].queryset = space_qs
 
 
@@ -89,3 +96,30 @@ class UpdateFolderSerializer(serializers.ModelSerializer):
     class Meta:
         model = core.models.Folder
         fields = ['name']
+
+
+class AddFileSerializer(serializers.ModelSerializer):
+    space = serializers.PrimaryKeyRelatedField(queryset=core.models.Space.objects.none(), required=True)
+
+    class Meta:
+        model = core.models.File
+        fields = ['folder', 'content', 'space']
+
+    def validate(self, data):
+        """
+        Check that Folder is within same space
+        """
+        space = data.get('space')
+        parent_folder = data.get('folder')
+
+        if not space:
+            return data
+
+        if parent_folder:
+            if space.id != parent_folder.space_id:
+                raise serializers.ValidationError({'folder': _('Parent folder does not belong to the selected space.')})
+        return data
+
+    def __init__(self, space_qs, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['space'].queryset = space_qs

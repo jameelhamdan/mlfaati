@@ -25,7 +25,7 @@ class FileAccessError(Exception):
 @deconstructible
 class UploadToPathAndRename(object):
     def __call__(self, instance: 'File', filename: str) -> str:
-        ext = filename.split('.')[-1]
+        file_root, ext = os.path.splitext(filename)
         filename = '%s.%s' % (instance.pk, ext)
         base_path = str(instance.space_id)
         # return the whole path to the file
@@ -43,7 +43,7 @@ class Space(LifecycleModelMixin, models.Model):
         PRIVATE = 'PRIVATE', _('Private')
 
         @classmethod
-        def as_dict(cls):
+        def as_dict(cls) -> dict:
             return {
                 cls.PUBLIC.name: cls.PUBLIC.value,
                 cls.PRIVATE.name: cls.PRIVATE.value,
@@ -69,7 +69,7 @@ class Space(LifecycleModelMixin, models.Model):
         verbose_name_plural = _('Spaces')
         default_permissions = []
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -96,7 +96,7 @@ class Folder(LifecycleModelMixin, TreeNode):
     objects = FolderQueryset.as_manager()
 
     @property
-    def full_path(self):
+    def full_path(self) -> str:
         return PATH_CONCAT_CHARACTER.join(self.path) + PATH_CONCAT_CHARACTER
 
     def get_path(self) -> list:
@@ -177,7 +177,7 @@ class Folder(LifecycleModelMixin, TreeNode):
 class File(LifecycleModelMixin, models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
     name = models.CharField(max_length=256, db_index=True)
-    content_type = models.CharField(max_length=32, db_index=True)
+    content_type = models.CharField(max_length=144, db_index=True)
     content_length = models.IntegerField(default=0)
     content = models.FileField(upload_to=UploadToPathAndRename())
     metadata = models.JSONField(default=dict, blank=True)
@@ -197,7 +197,7 @@ class File(LifecycleModelMixin, models.Model):
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
 
-    def get_path(self, with_space: bool = True):
+    def get_path(self, with_space: bool = True) -> str:
         folder_path = []
         if self.folder:
             folder_path = self.folder.path
@@ -214,7 +214,7 @@ class File(LifecycleModelMixin, models.Model):
     def get_alternative_name(cls, name):
         dir_name, file_name = os.path.split(name)
         file_root, file_ext = os.path.splitext(file_name)
-        return '%s_%s%s' % (file_root, short_uuid(), file_ext)
+        return '%s_%s%s' % (file_root, short_uuid().lower(), file_ext)
 
     def get_file_type(self) -> 'processing.definitions.FileType':
         """
@@ -244,6 +244,16 @@ class File(LifecycleModelMixin, models.Model):
             transaction.on_commit(lambda: processing.tasks.process_file.delay(self.pk))
         else:
             processing.tasks.process_file(self.pk)
+
+    def short_name(self, length: int = 25) -> str:
+        """
+        Truncates name of file and gets file_na...
+        :param length: truncate after nth length
+        :return: truncated file name
+        """
+        dir_name, file_name = os.path.split(self.name)
+        file_root, file_ext = os.path.splitext(file_name)
+        return (file_root[:length] + '..') if len(file_root) > length else file_root
 
     def get_absolute_url(self, access_time: int = 900, full: bool = False):
         """
@@ -278,7 +288,7 @@ class File(LifecycleModelMixin, models.Model):
             'space_id': str(self.space_id),
         }, timedelta(minutes=minutes))
 
-    def verify_access_token(self, token):
+    def verify_access_token(self, token: str) -> bool:
         """
         Check whether token is valid for this File
         :param token: Base64 encoded Token from get_access_token

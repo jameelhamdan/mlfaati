@@ -89,9 +89,19 @@ class UpdateFolderView(generics.UpdateAPIView):
         return core.models.Folder.objects.owned(self.request.user)
 
 
+class AddFileView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.AddFileSerializer
+
+    def get_serializer(self, *args, **kwargs):
+        kwargs['space_qs'] = core.models.Space.objects.owned(self.request.user)
+        return super().get_serializer(*args, **kwargs)
+
+
 urlpatterns = [
     path('browser/<str:pk>', BaseBrowserView.as_view(), name='api_browser'),
     path('browser/<str:pk>/<int:folder_id>', FolderBrowserView.as_view(), name='api_browser_folder'),
     path('folder/add', AddFolderView.as_view(), name='api_folder_add'),
     path('folder/<int:pk>/update', UpdateFolderView.as_view(), name='api_folder_update'),
+    path('file/add', AddFileView.as_view(), name='api_file_add')
 ]

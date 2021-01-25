@@ -129,6 +129,8 @@ const humanFileSize = function (bytes, si = true, dp = 1) {
     return bytes.toFixed(dp) + ' ' + units[u];
 }
 
+const defaultDateTimeFormat = "YYYY-MM-DD HH:mm:ss";
+const defaultDateFormat = "YYYY-MM-DD HH:mm:ss";
 
 const handleSwalAxiosError = function (err) {
     let res = err.response;
