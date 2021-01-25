@@ -25,7 +25,7 @@ class FileAccessError(Exception):
 @deconstructible
 class UploadToPathAndRename(object):
     def __call__(self, instance: 'File', filename: str) -> str:
-        ext = filename.split('.')[-1]
+        file_root, ext = os.path.splitext(filename)
         filename = '%s.%s' % (instance.pk, ext)
         base_path = str(instance.space_id)
         # return the whole path to the file
@@ -214,7 +214,7 @@ class File(LifecycleModelMixin, models.Model):
     def get_alternative_name(cls, name):
         dir_name, file_name = os.path.split(name)
         file_root, file_ext = os.path.splitext(file_name)
-        return '%s_%s%s' % (file_root, short_uuid(), file_ext)
+        return '%s_%s%s' % (file_root, short_uuid().lower(), file_ext)
 
     def get_file_type(self) -> 'processing.definitions.FileType':
         """
@@ -244,6 +244,16 @@ class File(LifecycleModelMixin, models.Model):
             transaction.on_commit(lambda: processing.tasks.process_file.delay(self.pk))
         else:
             processing.tasks.process_file(self.pk)
+
+    def short_name(self, length: int = 25) -> str:
+        """
+        Truncates name of file and gets file_na...
+        :param length: truncate after nth length
+        :return: truncated file name
+        """
+        dir_name, file_name = os.path.split(self.name)
+        file_root, file_ext = os.path.splitext(file_name)
+        return (file_root[:length] + '..') if len(file_root) > length else file_root
 
     def get_absolute_url(self, access_time: int = 900, full: bool = False):
         """

@@ -59,7 +59,7 @@
                     file.size = humanFileSize(file.content_length);
                     file.folder_path = folder_path;
 
-                    list.forEach(function (childFile, index) {
+                    file.children.forEach(function (childFile, index) {
                         childFile.created_on_display = moment(childFile.created_on).fromNow();
                         childFile.updated_on_display = moment(childFile.updated_on).fromNow();
                         childFile.created_on = moment(childFile.created_on).format(defaultDateTimeFormat);
@@ -240,6 +240,12 @@
                 <div class="col-12 mt-3">
                     <div class="small font-weight-bold mt-1">Location:</div>
                     <a class="text-700">[[ details.folder_path ]]</a>
+                </div>
+                <div v-if="!!details.children.length" class="col-12 mt-3">
+                    <div class="small font-weight-bold mt-1">Pipelines:</div>
+                    <a v-for="child in details.children" :href="child.serve_url" target="_blank" class="text-700 d-block">
+                        [[ child.pipeline.name ]] - <span :title="child.name">[[ child.short_name ]]</span> - [[ child.size ]]
+                    </a>
                 </div>
             </div>
         `

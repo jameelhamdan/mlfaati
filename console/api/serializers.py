@@ -20,7 +20,7 @@ class ChildrenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core.models.File
-        fields = ['id', 'name', 'serve_url', 'pipeline', 'content_type', 'content_length', 'created_on', 'updated_on']
+        fields = ['id', 'name', 'short_name', 'serve_url', 'pipeline', 'content_type', 'content_length', 'created_on', 'updated_on']
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -32,7 +32,7 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core.models.File
-        fields = ['id', 'name', 'serve_url', 'children', 'content_type', 'content_length', 'created_on', 'updated_on']
+        fields = ['id', 'name', 'short_name', 'serve_url', 'children', 'content_type', 'content_length', 'created_on', 'updated_on']
 
 
 class FolderSerializer(serializers.ModelSerializer):

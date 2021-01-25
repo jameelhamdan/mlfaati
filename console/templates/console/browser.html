@@ -36,7 +36,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-8 col-lg-8 col-xl-9 col-xxl-9">
+        <div class="col-12 col-lg-8 col-xl-9 col-xxl-9">
             <div class="card shadow-sm">
                 <div class="table-responsive">
                     <table class="table align-items-center table-flush mb-0 rounded">
@@ -70,7 +70,7 @@
                         <tr @dblclick.native="openFile(file)" @click="selectDetail('File', file)" v-for="file in fileList" :class="['show-pointer', {'bg-light': file.selected}]">
                             <td>#</td>
                             <td>
-                                <i class="ft-file"></i> <span :title="file.name">[[ file.name ]]</span>
+                                <i class="ft-file"></i> <span :title="file.name">[[ file.short_name ]]</span>
                             </td>
                             <td>[[ file.content_type ]]</td>
                             <td class="d-none d-md-table-cell" :title="file.created_on">[[ file.created_on_display ]]</td>
@@ -81,7 +81,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4 col-lg-4 col-xl-3 col-xxl-3 mt-5 mt-md-0">
+        <div class="col-12 col-lg-4 col-xl-3 col-xxl-3 mt-5 mt-lg-0">
             <div id="detailsCard" class="card border-light shadow-sm mb-4">
                 <div v-if="current_detail !== null">
                     <div class="card-header border-bottom border-light d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
