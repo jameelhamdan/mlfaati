@@ -110,6 +110,24 @@ class Folder(LifecycleModelMixin, TreeNode):
 
         return path + [self.name]
 
+    def clean(self):
+        super().clean()
+
+        if self.parent and self.space_id != self.parent.space_id:
+            raise ValidationError(
+                {'folder': _('Parent folder does not belong to the selected space.')}
+            )
+
+        # Check unique constraint
+        qs = self.__class__.objects.filter(parent_id=self.parent_id).filter(name=self.name)
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
+
+        if self.name and qs.filter(name=self.name).exists():
+            raise ValidationError(
+                {'name': _('Parent Folder already has child with same name.')}, code='unique_together'
+            )
+
     def _perform_unique_checks(self, unique_checks):
         errors = super()._perform_unique_checks(unique_checks)
         qs = self.__class__.objects.filter(name=self.name)
@@ -128,7 +146,7 @@ class Folder(LifecycleModelMixin, TreeNode):
 
         if not error_already_raised and qs.exists():
             errors.setdefault(NON_FIELD_ERRORS, []).append(
-                ValidationError(_('Folder with this Name and Parent already exists.'), code='unique_together')
+                ValidationError(_('Parent Folder already has child with same name.'), code='unique_together')
             )
 
         return errors
@@ -205,6 +223,14 @@ class File(LifecycleModelMixin, models.Model):
         if with_space:
             return PATH_CONCAT_CHARACTER.join([self.space.name] + folder_path + [self.name])
         return PATH_CONCAT_CHARACTER.join(folder_path + [self.name])
+
+    def clean(self):
+        super(self).clean()
+
+        if self.parent and self.space_id != self.parent.space_id:
+            raise ValidationError(
+                {'folder': _('Parent folder does not belong to the selected space.')}
+            )
 
     @classmethod
     def check_name_exists(cls, folder_id, file_name):

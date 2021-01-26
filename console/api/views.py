@@ -75,8 +75,8 @@ class FolderBrowserView(BaseBrowserView):
         return super().retrieve(space, folder, *args, **kwargs)
 
 
-class AddFolderView(BaseAPIView, generics.CreateAPIView):
-    serializer_class = serializers.AddFolderSerializer
+class CreateFolderView(BaseAPIView, generics.CreateAPIView):
+    serializer_class = serializers.CreateFolderSerializer
 
     def get_serializer(self, *args, **kwargs):
         kwargs['space_qs'] = core.models.Space.objects.owned(self.request.user)
@@ -90,8 +90,8 @@ class UpdateFolderView(BaseAPIView, generics.UpdateAPIView):
         return core.models.Folder.objects.owned(self.request.user)
 
 
-class AddFileView(BaseAPIView, generics.CreateAPIView):
-    serializer_class = serializers.AddFileSerializer
+class CreateFileView(BaseAPIView, generics.CreateAPIView):
+    serializer_class = serializers.CreateFileSerializer
 
     def get_serializer(self, *args, **kwargs):
         kwargs['space_qs'] = core.models.Space.objects.owned(self.request.user)
@@ -101,7 +101,7 @@ class AddFileView(BaseAPIView, generics.CreateAPIView):
 urlpatterns = [
     path('browser/<str:pk>', BaseBrowserView.as_view(), name='api_browser'),
     path('browser/<str:pk>/<int:folder_id>', FolderBrowserView.as_view(), name='api_browser_folder'),
-    path('folder/add', AddFolderView.as_view(), name='api_folder_add'),
+    path('folder/create', CreateFolderView.as_view(), name='api_folder_create'),
     path('folder/<int:pk>/update', UpdateFolderView.as_view(), name='api_folder_update'),
-    path('file/add', AddFileView.as_view(), name='api_file_add')
+    path('file/create', CreateFileView.as_view(), name='api_file_create')
 ]

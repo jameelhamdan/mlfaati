@@ -55,7 +55,7 @@ class FolderSerializer(serializers.ModelSerializer):
         ]
 
 
-class AddFolderSerializer(serializers.ModelSerializer):
+class CreateFolderSerializer(serializers.ModelSerializer):
     space = serializers.PrimaryKeyRelatedField(queryset=core.models.Space.objects.none(), required=True)
 
     def validate(self, data):
@@ -98,27 +98,12 @@ class UpdateFolderSerializer(serializers.ModelSerializer):
         fields = ['name']
 
 
-class AddFileSerializer(serializers.ModelSerializer):
+class CreateFileSerializer(serializers.ModelSerializer):
     space = serializers.PrimaryKeyRelatedField(queryset=core.models.Space.objects.none(), required=True)
 
     class Meta:
         model = core.models.File
         fields = ['folder', 'content', 'space']
-
-    def validate(self, data):
-        """
-        Check that Folder is within same space
-        """
-        space = data.get('space')
-        parent_folder = data.get('folder')
-
-        if not space:
-            return data
-
-        if parent_folder:
-            if space.id != parent_folder.space_id:
-                raise serializers.ValidationError({'folder': _('Parent folder does not belong to the selected space.')})
-        return data
 
     def __init__(self, space_qs, *args, **kwargs):
         super().__init__(*args, **kwargs)
