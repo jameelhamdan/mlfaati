@@ -119,7 +119,7 @@ class Folder(LifecycleModelMixin, TreeNode):
             )
 
         # Check unique constraint
-        qs = self.__class__.objects.filter(parent_id=self.parent_id).filter(name=self.name)
+        qs = self.__class__.objects.filter(parent_id=self.parent_id)
         if self.pk:
             qs = qs.exclude(pk=self.pk)
 
@@ -130,7 +130,7 @@ class Folder(LifecycleModelMixin, TreeNode):
 
     def _perform_unique_checks(self, unique_checks):
         errors = super()._perform_unique_checks(unique_checks)
-        qs = self.__class__.objects.filter(name=self.name)
+        qs = self.__class__.objects.all()
         if self.pk:
             qs = qs.exclude(pk=self.pk)
 
@@ -144,7 +144,7 @@ class Folder(LifecycleModelMixin, TreeNode):
         if NON_FIELD_ERRORS in errors.keys() and errors[NON_FIELD_ERRORS][0].code == 'unique_together':
             error_already_raised = True
 
-        if not error_already_raised and qs.exists():
+        if not error_already_raised and qs.filter(name=self.name).exists():
             errors.setdefault(NON_FIELD_ERRORS, []).append(
                 ValidationError(_('Parent Folder already has child with same name.'), code='unique_together')
             )
@@ -192,6 +192,11 @@ class Folder(LifecycleModelMixin, TreeNode):
         return self.name
 
 
+class FileQueryset(models.QuerySet):
+    def owned(self, user):
+        return self.filter(space__owner_id=user.pk)
+
+
 class File(LifecycleModelMixin, models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
     name = models.CharField(max_length=256, db_index=True)
@@ -215,6 +220,8 @@ class File(LifecycleModelMixin, models.Model):
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
 
+    objects = FileQueryset.as_manager()
+
     def get_path(self, with_space: bool = True) -> str:
         folder_path = []
         if self.folder:
@@ -227,7 +234,7 @@ class File(LifecycleModelMixin, models.Model):
     def clean(self):
         super(self).clean()
 
-        if self.parent and self.space_id != self.parent.space_id:
+        if self.folder and self.space_id != self.folder.space_id:
             raise ValidationError(
                 {'folder': _('Parent folder does not belong to the selected space.')}
             )

@@ -12,7 +12,7 @@ class BaseDetailedView:
 
     def get_detail(self, serializer) -> dict:
         if self.detail_serializer:
-            return self.detail_serializer(serializer.instance)
+            return self.detail_serializer(serializer.instance).data
         return serializer.data
 
 
