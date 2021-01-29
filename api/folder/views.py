@@ -1,6 +1,8 @@
 from django.urls import path
 from rest_framework import generics
-from api.generic import BaseAPIView
+from api.generic import (
+    BaseAPIView, DetailedCreateAPIView, DetailedUpdateAPIView
+)
 import core.models
 from . import serializers, permissions
 
@@ -28,16 +30,18 @@ class DetailFolderView(BaseAPIView, generics.RetrieveAPIView):
         return core.models.Folder.objects.select_related('space', 'parent')
 
 
-class UpdateFolderView(BaseAPIView, generics.UpdateAPIView):
+class UpdateFolderView(BaseAPIView, DetailedUpdateAPIView):
     serializer_class = serializers.UpdateFolderSerializer
+    detail_serializer = serializers.ExtendedFolderSerializer
     permission_classes = [permissions.FolderPermission]
 
     def get_queryset(self):
         return core.models.Folder.objects.select_related('space', 'parent')
 
 
-class CreateFolderView(BaseAPIView, generics.CreateAPIView):
+class CreateFolderView(BaseAPIView, DetailedCreateAPIView):
     serializer_class = serializers.CreateFolderSerializer
+    detail_serializer = serializers.ExtendedFolderSerializer
     permission_classes = [permissions.FolderPermission]
 
 

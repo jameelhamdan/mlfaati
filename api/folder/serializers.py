@@ -24,12 +24,48 @@ class ExtendedFolderSerializer(serializers.ModelSerializer):
 
 
 class UpdateFolderSerializer(serializers.ModelSerializer):
+    def validate_name(self, name):
+        # Check unique constraint
+        qs = self.__class__.Meta.model.objects.filter(parent_id=self.instance.parent_id).filter(
+            name=name
+        ).exclude(pk=self.instance.pk)
+
+        if name and qs.filter(name=name).exists():
+            raise serializers.ValidationError(
+                _('Parent Folder already has child with same name.'), code='unique_together'
+            )
+
+        return name
+
     class Meta:
         model = core.models.Folder
         fields = ['name']
 
 
 class CreateFolderSerializer(serializers.ModelSerializer):
+    def validate(self, data):
+        # Check unique constraint
+
+        space = data['space']
+        parent = data.get('parent', None)
+        name = data['name']
+
+        if parent and space.id != parent.space_id:
+            raise serializers.ValidationError(
+                {'folder': _('Parent folder does not belong to the selected space.')}
+            )
+
+        qs = self.__class__.Meta.model.objects.filter(parent=parent).filter(
+            name=name
+        ).exclude(pk=self.instance.pk)
+
+        if name and qs.filter(name=name).exists():
+            raise serializers.ValidationError(
+                {'name': _('Parent Folder already has child with same name.')}, code='unique_together'
+            )
+
+        return name
+
     class Meta:
         model = core.models.Folder
         fields = ['name', 'parent', 'space']
