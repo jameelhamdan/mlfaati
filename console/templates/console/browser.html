@@ -113,8 +113,8 @@
     <script>
         const space_id = "{{ space.pk }}";
         const rootApiUrl = "{% url 'console:api_browser' pk=space.pk %}";
-        const addFolderApiUrl = "{% url 'console:api_folder_add' %}";
-        const addFileApiUrl = "{% url 'console:api_file_add' %}";
+        const addFolderApiUrl = "{% url 'console:api_folder_create' %}";
+        const addFileApiUrl = "{% url 'console:api_file_create' %}";
     </script>
     <script src="{% static 'js/browser.js' %}"></script>
 {% endblock %}
