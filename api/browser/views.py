@@ -1,11 +1,11 @@
 from django.urls import path
 from rest_framework import generics
-from api.generic import BaseAPIView
+from api.generic import BaseAPIMixin
 import core.models
 from . import serializers
 
 
-class ListFolderView(BaseAPIView, generics.ListAPIView):
+class ListFolderView(BaseAPIMixin, generics.ListAPIView):
     serializer_class = serializers.FolderSerializer
 
     def get_queryset(self):
@@ -18,7 +18,7 @@ class ListFolderView(BaseAPIView, generics.ListAPIView):
         return qs.filter(space_id=space_id, parent_id=parent_id)
 
 
-class ListFileView(BaseAPIView, generics.ListAPIView):
+class ListFileView(BaseAPIMixin, generics.ListAPIView):
     serializer_class = serializers.FileSerializer
 
     def get_queryset(self):
