@@ -12,9 +12,11 @@ from django.utils.deconstruct import deconstructible
 from tree_queries.models import TreeNode, TreeNodeForeignKey, TreeQuerySet
 from app import config
 from common import validators, crypt
-import processing.tasks
 from common.crypt import short_uuid
+import processing.tasks
+from . import tasks
 import processing.definitions
+
 PATH_CONCAT_CHARACTER = '/'
 
 
@@ -205,7 +207,9 @@ class File(LifecycleModelMixin, models.Model):
     content = models.FileField(upload_to=UploadToPathAndRename())
     metadata = models.JSONField(default=dict, blank=True)
 
-    folder: 'Folder' = models.ForeignKey('Folder', on_delete=models.CASCADE, related_name='files', null=True, blank=True)
+    folder: 'Folder' = models.ForeignKey(
+        'Folder', on_delete=models.CASCADE, related_name='files', null=True, blank=True
+    )
     space: 'Space' = models.ForeignKey('Space', on_delete=models.CASCADE, related_name='files')
 
     # Fields for child files
@@ -232,7 +236,7 @@ class File(LifecycleModelMixin, models.Model):
         return PATH_CONCAT_CHARACTER.join(folder_path + [self.name])
 
     def clean(self):
-        super(self).clean()
+        super().clean()
 
         if self.folder and self.space_id != self.folder.space_id:
             raise ValidationError(
@@ -278,6 +282,16 @@ class File(LifecycleModelMixin, models.Model):
         else:
             processing.tasks.process_file(self.pk)
 
+    def delete(self, lazy=True, *args, **kwargs):
+        if not lazy:
+            super(File, self).delete(*args, **kwargs)
+            return
+
+        if config.ENABLE_ASYNC:
+            transaction.on_commit(lambda: tasks.delete_file.delay(self.pk))
+        else:
+            transaction.on_commit(lambda: tasks.delete_file(self.pk))
+
     def short_name(self, length: int = 25) -> str:
         """
         Truncates name of file and gets file_na...
@@ -298,7 +312,6 @@ class File(LifecycleModelMixin, models.Model):
 
         url = reverse('cdn:by_id', kwargs={'pk': self.pk})
         if full:
-
             url = reverse('cdn:by_path', kwargs={
                 'space_name': self.space.name,
                 'path': self.get_path(False)
