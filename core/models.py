@@ -17,7 +17,7 @@ import processing.tasks
 from . import tasks
 import processing.definitions
 
-PATH_CONCAT_CHARACTER = '/'
+DIRECTORY_SEPARATOR = '/'
 
 
 class FileAccessError(Exception):
@@ -99,7 +99,7 @@ class Folder(LifecycleModelMixin, TreeNode):
 
     @property
     def full_path(self) -> str:
-        return PATH_CONCAT_CHARACTER.join(self.path) + PATH_CONCAT_CHARACTER
+        return DIRECTORY_SEPARATOR.join(self.path) + DIRECTORY_SEPARATOR
 
     def get_path(self) -> list:
         """
@@ -232,8 +232,8 @@ class File(LifecycleModelMixin, models.Model):
             folder_path = self.folder.path
 
         if with_space:
-            return PATH_CONCAT_CHARACTER.join([self.space.name] + folder_path + [self.name])
-        return PATH_CONCAT_CHARACTER.join(folder_path + [self.name])
+            return DIRECTORY_SEPARATOR.join([self.space.name] + folder_path + [self.name])
+        return DIRECTORY_SEPARATOR.join(folder_path + [self.name])
 
     def clean(self):
         super().clean()

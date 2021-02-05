@@ -1,8 +1,14 @@
+from uuid import UUID
 from django.urls import path
-from rest_framework import generics
+from rest_framework import generics, exceptions
 from api.generic import BaseAPIMixin
 import core.models
 from . import serializers
+
+
+QUERY_TYPE_ID = 'id'
+QUERY_TYPE_NAME = 'name'
+QUERY_TYPES = [QUERY_TYPE_ID, QUERY_TYPE_NAME]
 
 
 class ListFolderView(BaseAPIMixin, generics.ListAPIView):
@@ -15,7 +21,25 @@ class ListFolderView(BaseAPIMixin, generics.ListAPIView):
         # TODO: Raise exception of parent_id or space_id does not exist or is not related to user
         space_id = self.kwargs['space_id']
         parent_id = self.kwargs.get('parent_id', None)
-        return qs.filter(space_id=space_id, parent_id=parent_id)
+        query_type = self.request.GET.get('by')
+
+        if not query_type or query_type not in QUERY_TYPES:
+            query_type = QUERY_TYPE_ID
+
+        if query_type == QUERY_TYPE_NAME:
+            qs = qs.filter(space__name=space_id)
+
+        elif query_type == QUERY_TYPE_ID:
+            try:
+                space_uuid = UUID(space_id, version=4)
+            except ValueError:
+                raise exceptions.ParseError('UUID format is invalid.')
+
+            qs = qs.filter(space_id=space_uuid)
+        else:
+            raise exceptions.ParseError('Unknown query type.')
+
+        return qs.filter(parent_id=parent_id)
 
 
 class ListFileView(BaseAPIMixin, generics.ListAPIView):
@@ -28,12 +52,31 @@ class ListFileView(BaseAPIMixin, generics.ListAPIView):
         # TODO: Raise exception of parent_id or space_id does not exist or is not related to user
         space_id = self.kwargs['space_id']
         folder_id = self.kwargs.get('folder_id', None)
-        return qs.filter(space_id=space_id, folder_id=folder_id)
+
+        query_type = self.request.GET.get('by')
+
+        if not query_type or query_type not in QUERY_TYPES:
+            query_type = QUERY_TYPE_ID
+
+        if query_type == QUERY_TYPE_NAME:
+            qs = qs.filter(space__name=space_id)
+
+        elif query_type == QUERY_TYPE_ID:
+            try:
+                space_uuid = UUID(space_id, version=4)
+            except ValueError:
+                raise exceptions.ParseError('UUID format is invalid.')
+
+            qs = qs.filter(space_id=space_uuid)
+        else:
+            raise exceptions.ParseError('Unknown query type.')
+
+        return qs.filter(folder_id=folder_id)
 
 
 urlpatterns = [
-    path('<uuid:space_id>/folders', ListFolderView.as_view(), name='browser_folder_root'),
-    path('<uuid:space_id>/folders/<str:parent_id>', ListFolderView.as_view(), name='browser_folder'),
-    path('<uuid:space_id>/files', ListFileView.as_view(), name='browser_file_root'),
-    path('<uuid:space_id>/files/<str:folder_id>', ListFileView.as_view(), name='browser_file')
+    path('<str:space_id>/folders', ListFolderView.as_view(), name='browser_folder_root'),
+    path('<str:space_id>/folders/<str:parent_id>', ListFolderView.as_view(), name='browser_folder'),
+    path('<str:space_id>/files', ListFileView.as_view(), name='browser_file_root'),
+    path('<str:space_id>/files/<str:folder_id>', ListFileView.as_view(), name='browser_file')
 ]

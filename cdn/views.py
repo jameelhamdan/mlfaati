@@ -63,7 +63,7 @@ class BaseServeView(SingleObjectMixin, View):
 
 class ServeByPathView(BaseServeView):
     def get_object(self, queryset=None):
-        path_list = self.kwargs['path'].split(core.models.PATH_CONCAT_CHARACTER)
+        path_list = self.kwargs['path'].split(core.models.DIRECTORY_SEPARATOR)
         if len(path_list) == 0:
             raise core.models.File.DoesNotExist()
 

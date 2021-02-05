@@ -1,6 +1,8 @@
 from django.urls import path
-from rest_framework import generics, mixins, response, status
+from rest_framework import generics, mixins, response, status, exceptions
 from django.utils.translation import gettext_lazy as _
+from rest_framework.generics import get_object_or_404
+
 from api.generic import (
     BaseAPIMixin, DetailedCreateAPIView, DetailedUpdateMixin
 )
@@ -26,6 +28,21 @@ class GenericFolderView(
     permission_classes = [permissions.FolderPermission]
     queryset = core.models.Folder.objects.select_related('space', 'parent')
     lookup_url_kwarg = 'pk'
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        if 'pk' in self.kwargs.keys():
+            return get_object_or_404(queryset, pk=self.kwargs['pk'])
+
+        elif 'path' in self.kwargs.keys() and 'space_name' in self.kwargs.keys():
+            space_name = self.kwargs['space_name']
+            given_path = self.kwargs['path'].strip(core.models.DIRECTORY_SEPARATOR)
+            return get_object_or_404(
+                queryset, space__name=space_name, path=given_path.split(core.models.DIRECTORY_SEPARATOR)
+            )
+
+        raise exceptions.ParseError('Requested kwarg is not allowed')
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -66,4 +83,5 @@ class GenericFolderView(
 urlpatterns = [
     path('create', CreateFolderView.as_view(), name='folder_create'),
     path('<str:pk>', GenericFolderView.as_view(), name='folder'),
+    path('<str:space_name>/<path:path>', GenericFolderView.as_view(), name='folder_by_path'),
 ]
