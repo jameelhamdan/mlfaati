@@ -11,6 +11,7 @@ main {
 
 main.content {
     padding-top: 70px !important;
+    margin-left: 0;
 }
 
 main .main-content {

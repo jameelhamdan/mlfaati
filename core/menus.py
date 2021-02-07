@@ -9,9 +9,25 @@ MENUS = {
     'MAIN_NAV': [
         {
             'name': _('Console'),
-            'url': 'console:Home',  # reversible
+            'url': 'console:home',
             'icon_class': 'ft-terminal',
             'validators': ['core.menus.is_authenticated'],
         }
     ],
+    'DROPDOWN_NAV': [
+        {
+            'name': _('Settings'),
+            'url': '#',
+            'icon_class': 'ft-user',
+            'validators': ['core.menus.is_authenticated'],
+        },
+        {
+            'name': _('Logout'),
+            'url': 'auth:logout',
+            'separator': True,
+            'icon_class': 'ft-log-out',
+            'validators': ['core.menus.is_authenticated'],
+        },
+
+    ]
 }
