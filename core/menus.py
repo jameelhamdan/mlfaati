@@ -17,7 +17,7 @@ MENUS = {
     'DROPDOWN_NAV': [
         {
             'name': _('Settings'),
-            'url': '#',
+            'url': 'auth:settings',
             'icon_class': 'ft-user',
             'validators': ['core.menus.is_authenticated'],
         },

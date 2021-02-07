@@ -30,4 +30,3 @@ class PageMixin(PageTitleMixin, BreadcrumbsMixin):
     Generic mixin to apply all mixins in one mixin
     """
     page_title = None
-

@@ -23,8 +23,18 @@ class Token(models.Model):
     def generate_key(cls):
         return binascii.hexlify(os.urandom(20)).decode()
 
+    @classmethod
+    def new_token(cls, user: 'users.User'):
+        token = cls(user=user)
+        token.save()
+        return token
+
     def __str__(self):
         return self.key
+
+    def short_key(self):
+        key_length = int(len(self.key) / 2)
+        return '%s...' % self.key[:key_length]
 
     class Meta:
         ordering = ['-key']

@@ -5,6 +5,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django_lifecycle import LifecycleModelMixin
 from common.validators import AlphaValidator
+import api.models
 
 
 class UserManager(BaseUserManager):
@@ -69,6 +70,12 @@ class User(LifecycleModelMixin, AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _('users')
         default_permissions = []
 
+    def new_token(self):
+        """
+        Creates and returns a new Token object
+        """
+        return api.models.Token.new_token(self)
+
     def clean(self):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
@@ -84,3 +91,11 @@ class User(LifecycleModelMixin, AbstractBaseUser, PermissionsMixin):
         Return the short name for the user.
         """
         return self.first_name
+
+    @property
+    def avatar(self):
+        """
+        Return user avatar if exists otherwise return default
+        """
+        from django.templatetags.static import static
+        return static('img/profile-picture.jpg')

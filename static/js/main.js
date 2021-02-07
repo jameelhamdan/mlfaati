@@ -87,7 +87,7 @@ d.addEventListener("DOMContentLoaded", function (event) {
     });
 
     // Tooltips
-    var tooltipTriggerList = [].slice.call(d.querySelectorAll('[data-toggle="tooltip"]'))
+    var tooltipTriggerList = [].slice.call(d.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })

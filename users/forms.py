@@ -6,6 +6,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from django.contrib.auth import forms as auth_forms
 from common.crispy import Anchor
+from . import models
 
 
 class LoginForm(auth_forms.AuthenticationForm):
@@ -44,6 +45,31 @@ class LoginForm(auth_forms.AuthenticationForm):
                 ),
                 ButtonHolder(
                     Submit('submit', _('Sign in'), css_class='w-100'),
+                    css_class='pt-4 col-12'
+                ),
+                css_class='row'
+            )
+        )
+
+
+class SettingsForm(forms.ModelForm):
+
+    class Meta:
+        model = models.User
+        fields = ['first_name', 'last_name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_tag = True
+        self.helper.form_class = 'form-vertical remove-asterisk'
+        self.helper.layout = Layout(
+            Div(
+                Field('first_name', wrapper_class='col-6'),
+                Field('last_name', wrapper_class='col-6'),
+                ButtonHolder(
+                    Submit('submit', _('Save')),
                     css_class='pt-4 col-12'
                 ),
                 css_class='row'

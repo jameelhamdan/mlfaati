@@ -1,8 +1,10 @@
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import views as auth_views
+from django.views import generic
 from common.views import PageMixin
-from . import forms
+from . import models, forms
+import api.models
 
 
 class LoginView(PageMixin, auth_views.LoginView):
@@ -23,3 +25,14 @@ class LoginView(PageMixin, auth_views.LoginView):
 class LogoutView(auth_views.LogoutView):
     next_page = reverse_lazy('auth:login')
 
+
+class SettingsView(PageMixin, generic.UpdateView):
+    template_name = 'settings/index.html'
+    form_class = forms.SettingsForm
+    page_title = _('Settings')
+    breadcrumbs = [
+        (_('Settings'), '#'),
+    ]
+
+    def get_object(self, queryset=None):
+        return models.User.objects.get(pk=self.request.user.pk)

@@ -26,7 +26,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle pt-1 px-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="media d-flex align-items-center">
-                            <img class="user-avatar md-avatar rounded-circle" alt="avatar" src="{% static 'img/profile-picture.jpg' %}">
+                            <img class="user-avatar md-avatar rounded-circle" alt="avatar" src="{{ user.avatar }}">
                             <div class="media-body ms-2 text-dark align-items-center d-none d-lg-block">
                                 <span class="mb-0 font-small fw-bold">{{ request.user }}</span>
                             </div>
