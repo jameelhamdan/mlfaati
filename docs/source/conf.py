@@ -20,6 +20,7 @@
 project = 'Mlfaati'
 copyright = '2021, Jameel Hamdan'
 author = 'Jameel Hamdan'
+html_theme = "classic"
 
 # The full version, including alpha/beta/rc tags
 release = '0.0.5a'
