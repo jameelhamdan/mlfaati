@@ -3,6 +3,7 @@ from celery.utils.log import get_task_logger
 from django.core.files.uploadedfile import SimpleUploadedFile
 import core.models
 import copy
+from .definitions import TransformationType
 
 
 logger = get_task_logger(__name__)
@@ -19,6 +20,7 @@ def process_file(file_id):
     ).get(pk=file_id)
 
     child_list = []
+    file_metadata = {}
 
     for pipeline in file.folder.pipelines.all():
         if not pipeline.is_enabled:
@@ -30,7 +32,7 @@ def process_file(file_id):
 
         # Create Temporary file
         # TODO: copy file into memory in a more efficient way
-        metadata = {}
+        pipeline_metadata = {}
         temp_file = SimpleUploadedFile(
             name=copy.deepcopy(file.name),
             content=copy.deepcopy(file.content).read(),
@@ -38,24 +40,29 @@ def process_file(file_id):
         )
 
         # Starting Processing of file
-        for transformation in pipeline.transformations.all():
-            _types = transformation.TYPES
+        for transformation in pipeline.transformations.filter(type__in=TransformationType.file_types()):
             transform_type = transformation._type
 
+            # Skip transformation if it cannot be applied to file of this type
             if transform_type not in pipeline._target_type.get_file_type(temp_file.content_type).mapping and pipeline.target_type != pipeline.TYPES.ALL:
-                # Skip transformation if it cannot be applied to file of this type
                 continue
 
-            # Choose either Processing functions or metadeta functions
-            if transform_type in _types.file_types():
-                temp_file = transformation.process_file(temp_file)
-            elif transform_type in _types.metadata_types():
-                metadata.update(transformation.process_metadata(temp_file))
-            else:
-                raise ProcessingException('Transformation %s type is not mapped correctly in file types' % transform_type)
+            temp_file = transformation.process_file(temp_file)
+
+        for transformation in pipeline.transformations.filter(type__in=TransformationType.metadata_types()):
+            transform_type = transformation._type
+
+            # Skip transformation if it cannot be applied to file of this type
+            if transform_type not in pipeline._target_type.get_file_type(temp_file.content_type).mapping and pipeline.target_type != pipeline.TYPES.ALL:
+                continue
+
+            pipeline_metadata.update(transformation.process_metadata(temp_file))
 
         # Add prefix to file name
         temp_file.name = '%s__%s' % (pipeline.name, temp_file.name)
+
+        # Append new pipeline metadata to main file
+        file_metadata.update({pipeline.name: pipeline_metadata})
 
         new_file = core.models.File(
             content=temp_file,
@@ -63,7 +70,7 @@ def process_file(file_id):
             folder_id=file.folder_id,
             space_id=file.space_id,
             pipeline_id=pipeline.id,
-            metadata=metadata,
+            metadata=pipeline_metadata,
         )
 
         new_file.save()
@@ -73,5 +80,10 @@ def process_file(file_id):
             'pipeline_id': pipeline.id,
             'pipeline_name': pipeline.name,
         })
+
+    # Update main file metadata after finishing processing pipelines
+    if file_metadata != {}:
+        file.metadata = file_metadata
+        file.save(update_fields=['metadata'])
 
     return child_list

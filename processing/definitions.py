@@ -18,6 +18,7 @@ class TransformationType(models.TextChoices):
 
     COMPRESS = 'COMPRESS', _('Compress')
     IMAGE_COMPRESS = 'IMAGE_COMPRESS', _('Compress Image')
+    IMAGE_CLASSIFY = 'IMAGE_CLASSIFY', _('Classify Image')
     RESIZE = 'RESIZE', _('Resize')
     ADJUST = 'ADJUST', _('Adjust')
 
@@ -27,7 +28,7 @@ class TransformationType(models.TextChoices):
 
     @classmethod
     def metadata_types(cls):
-        return []
+        return [cls.IMAGE_CLASSIFY]
 
     @property
     def fields(self) -> dict:
@@ -48,7 +49,8 @@ class TransformationType(models.TextChoices):
                 'brightness': (float,),
                 'contrast': (float,),
                 'sharpness': (float,)
-            }
+            },
+            self.IMAGE_CLASSIFY: {}
         }
 
         return fields.get(self, {})
@@ -68,6 +70,9 @@ class TransformationType(models.TextChoices):
 
     @property
     def process_metadata_function(self):
+        if self == self.IMAGE_CLASSIFY:
+            return image.classify
+
         return empty_process_metadata_function
 
 
@@ -87,7 +92,8 @@ class FileType(models.TextChoices):
             self.IMAGE: [
                 TransformationType.IMAGE_COMPRESS,
                 TransformationType.RESIZE,
-                TransformationType.ADJUST
+                TransformationType.ADJUST,
+                TransformationType.IMAGE_CLASSIFY,
             ],
         }
 
