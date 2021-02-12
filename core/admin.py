@@ -37,4 +37,4 @@ class FileAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:
             return self.readonly_fields + ['content']
-        return self.readonly_fields
+        return self.readonly_fields + ['metadata']

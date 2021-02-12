@@ -32,7 +32,7 @@ services:
 
   server:  # You will have to build the image and call it "mlfaati:latest"
     image: "mlfaati:latest"
-    command: bash -c "./release.sh && daphne -b 0.0.0.0 -p 8000 app.server:application"
+    command: bash -c "./scripts/release.sh && daphne -b 0.0.0.0 -p 8000 app.server:application"
     env_file: .env
     volumes:
       - static_volume:/usr/src/app/.static

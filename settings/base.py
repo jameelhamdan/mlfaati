@@ -206,3 +206,13 @@ CELERY_RESULT_BACKEND = CELERY_REDIS_URL
 
 ENABLE_TRANSFORMATIONS = True
 ENABLE_ASYNC = True
+
+IMAGE_CLASSIFY_MODEL = 'image_classify'
+
+# Override this in your conf.py to set custom image classification model file
+# To download these files you can use ./scripts/download_models.sh script
+MODEL_OPTIONS = {
+    IMAGE_CLASSIFY_MODEL: {
+        'path': os.path.join(BASE_DIR, 'bin', 'models', 'inception_v3_weights_tf_dim_ordering_tf_kernels.h5'),
+    }
+}
