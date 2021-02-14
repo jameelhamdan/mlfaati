@@ -1,8 +1,8 @@
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
 
-VERSION = '0.0.5a'
-SITE_NAME = _('Mlfaati')
+
+VERSION = '0.0.6a'
+SITE_NAME = 'Mlfaati'
 GITHUB_REPO = 'https://github.com/Kingjmk/mlfaati'
 AUTHOR = 'Jameel Hamdan'
 PRIVATE_FILE_GET_PARAM = 'token'

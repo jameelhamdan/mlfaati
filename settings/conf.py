@@ -1,2 +1,5 @@
-from .base import *
+"""
+Django Configuration
+"""
 
+from .base import *

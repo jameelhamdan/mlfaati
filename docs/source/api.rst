@@ -1,7 +1,24 @@
 API Reference
 =============
 
-a RESTful API is provided interact with `File`, `Folder` and `Space` resources on the server.
+a RESTful API is available to interact with `File`, `Folder` and `Space` resources on the server.
 
-Coming Soon
-###########
+Authentication
+##############
+
+Authentication
+
+File
+####
+
+File API
+
+Folder
+######
+
+Folder API
+
+Space
+#####
+
+Space API

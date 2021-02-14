@@ -38,8 +38,20 @@ or you can use the provided ``docker-compose-yml`` and run this command in order
 all required services.
 
 .. code-block:: shell
-    :caption: ~/
-    :name: ~/
 
     $ docker-compose up -d
 
+
+
+Post Installation
+#################
+
+After installation you will need to create a user, this can be done using django command
+from inside a running docker container:
+
+.. code-block:: shell
+
+    $ docker exec -it <container_name> /bin/bash
+    $ python manage.py createsuperuser
+
+and enter all the necessary information when prompted.

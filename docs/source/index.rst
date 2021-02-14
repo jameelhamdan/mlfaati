@@ -12,6 +12,29 @@ Welcome to Mlfaati's documentation!
    installation
    api
 
+What is Mlfaati?
+================
+a file server/cdn/processing backend.
+
+Application Stack
+=================
+
+Mlfaati is built on the Django Python framework and utilizes a PostgreSQL database.
+It runs as an ASGI service behind an HTTP server.
+
++------------------+----------------------+
+| Function         | Component            |
++==================+======================+
+| HTTP Service     | Nginx or Apache      |
++------------------+----------------------+
+| ASGI Service     | daphne or uvicorn    |
++------------------+----------------------+
+| Application      | Django/Python        |
++------------------+----------------------+
+| Database         | PostgreSQL 12.6+     |
++------------------+----------------------+
+| Background jobs  | Celery/Redis         |
++------------------+----------------------+
 
 Contribute to Mlfaati
 ======================
