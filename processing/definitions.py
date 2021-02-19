@@ -17,6 +17,7 @@ class TransformationType(models.TextChoices):
     """
 
     COMPRESS = 'COMPRESS', _('Compress')
+    CHECKSUM = 'CHECKSUM', _('Check sum')
     IMAGE_COMPRESS = 'IMAGE_COMPRESS', _('Compress Image')
     IMAGE_CLASSIFY = 'IMAGE_CLASSIFY', _('Classify Image')
     RESIZE = 'RESIZE', _('Resize')
@@ -28,7 +29,7 @@ class TransformationType(models.TextChoices):
 
     @classmethod
     def metadata_types(cls):
-        return [cls.IMAGE_CLASSIFY]
+        return [cls.IMAGE_CLASSIFY, cls.CHECKSUM]
 
     @property
     def fields(self) -> dict:
@@ -50,7 +51,10 @@ class TransformationType(models.TextChoices):
                 'contrast': (float,),
                 'sharpness': (float,)
             },
-            self.IMAGE_CLASSIFY: {}
+            self.CHECKSUM: {
+                'type': (str, )  # Must be MD5, or SHA256
+            },
+            self.IMAGE_CLASSIFY: {},
         }
 
         return fields.get(self, {})
@@ -72,7 +76,8 @@ class TransformationType(models.TextChoices):
     def process_metadata_function(self):
         if self == self.IMAGE_CLASSIFY:
             return image.classify
-
+        elif self == self.CHECKSUM:
+            return all.checksum
         return empty_process_metadata_function
 
 
@@ -88,7 +93,10 @@ class FileType(models.TextChoices):
     @property
     def mapping(self) -> list:
         mapping = {
-            self.ALL: [TransformationType.COMPRESS],
+            self.ALL: [
+                TransformationType.COMPRESS,
+                TransformationType.CHECKSUM,
+            ],
             self.IMAGE: [
                 TransformationType.IMAGE_COMPRESS,
                 TransformationType.RESIZE,

@@ -28,7 +28,7 @@ class FileAccessError(Exception):
 class UploadToPathAndRename(object):
     def __call__(self, instance: 'File', filename: str) -> str:
         file_root, ext = os.path.splitext(filename)
-        filename = '%s.%s' % (instance.pk, ext)
+        filename = '%s.%s' % (instance.pk, ext.replace('.', ''))
         base_path = str(instance.space_id)
         # return the whole path to the file
         return os.path.join(base_path, filename)
