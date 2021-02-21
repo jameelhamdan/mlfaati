@@ -40,9 +40,6 @@ def checksum(uploaded_file: 'SimpleUploadedFile', **options):
     else:
         raise ValueError(f'Hash type "{hash_type}" in "checksum" function is not valid')
 
-    for chunk in uploaded_file.chunks():
-        hasher.update(chunk)
-
     if uploaded_file.multiple_chunks():
         for data in uploaded_file.chunks(HASH_CHUNK_SIZE):
             hasher.update(data)
