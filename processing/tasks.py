@@ -40,6 +40,7 @@ def process_file(file_id):
         )
 
         # Starting Processing of file
+        file_transformation_count = 0
         for transformation in pipeline.transformations.filter(type__in=TransformationType.file_types()):
             transform_type = transformation._type
 
@@ -48,7 +49,9 @@ def process_file(file_id):
                 continue
 
             temp_file = transformation.process_file(temp_file)
+            file_transformation_count += 1
 
+        metadata_transformation_count = 0
         for transformation in pipeline.transformations.filter(type__in=TransformationType.metadata_types()):
             transform_type = transformation._type
 
@@ -57,29 +60,32 @@ def process_file(file_id):
                 continue
 
             pipeline_metadata.update(transformation.process_metadata(temp_file))
+            metadata_transformation_count += 1
 
-        # Add prefix to file name
-        temp_file.name = '%s__%s' % (pipeline.name, temp_file.name)
+        if metadata_transformation_count > 0:
+            # Append new pipeline metadata to main file
+            file_metadata.update({pipeline.name: pipeline_metadata})
 
-        # Append new pipeline metadata to main file
-        file_metadata.update({pipeline.name: pipeline_metadata})
+        if file_transformation_count > 0:
+            # Add prefix to file name
+            temp_file.name = '%s__%s' % (pipeline.name, temp_file.name)
 
-        new_file = core.models.File(
-            content=temp_file,
-            parent=file,
-            folder_id=file.folder_id,
-            space_id=file.space_id,
-            pipeline_id=pipeline.id,
-            metadata=pipeline_metadata,
-        )
+            new_file = core.models.File(
+                content=temp_file,
+                parent=file,
+                folder_id=file.folder_id,
+                space_id=file.space_id,
+                pipeline_id=pipeline.id,
+                metadata=pipeline_metadata,
+            )
 
-        new_file.save()
-        child_list.append({
-            'id': new_file.pk,
-            'file_name': new_file.name,
-            'pipeline_id': pipeline.id,
-            'pipeline_name': pipeline.name,
-        })
+            new_file.save()
+            child_list.append({
+                'id': new_file.pk,
+                'file_name': new_file.name,
+                'pipeline_id': pipeline.id,
+                'pipeline_name': pipeline.name,
+            })
 
     # Update main file metadata after finishing processing pipelines
     if file_metadata != {}:
