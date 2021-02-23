@@ -3,6 +3,7 @@ import zipfile
 from io import BytesIO
 from django.core.files.uploadedfile import SimpleUploadedFile
 from . import utils
+from ..types import ChecksumType
 
 
 HASH_CHUNK_SIZE = 4096
@@ -27,15 +28,15 @@ def compress(uploaded_file: 'SimpleUploadedFile', **options):
 
 def checksum(uploaded_file: 'SimpleUploadedFile', **options):
     """
-    Function to calculate SHA256 checksum for file,
+    Function to calculate checksum for file,
     can be used to verify downloaded file integrity
     """
 
     hash_type = options['type']
 
-    if hash_type == 'MD5':
+    if hash_type == ChecksumType.MD5:
         hasher = hashlib.md5()
-    elif hash_type == 'SHA256':
+    elif hash_type == ChecksumType.SHA256:
         hasher = hashlib.sha256()
     else:
         raise ValueError(f'Hash type "{hash_type}" in "checksum" function is not valid')
