@@ -33,10 +33,11 @@ class BaseServeView(SingleObjectMixin, View):
         file = self.object.content
         file_name = self.object.name
         file_path = self.object.content.url
+        as_attachment = (self.request.GET.get('as_attachment') == 'true')
 
         if settings.DEBUG:
             # Serve through normal HTTP in debug mode
-            return FileResponse(file, as_attachment=False, filename=file_name)
+            return FileResponse(file, as_attachment=as_attachment, filename=file_name)
 
         # Serve through Nginx in production
         response = HttpResponse()
@@ -47,7 +48,7 @@ class BaseServeView(SingleObjectMixin, View):
             file_expr = "filename*=utf-8''{}".format(quote(file_name))
 
         response['content-disposition'] = 'inline; %s' % file_expr
-        if self.request.GET.get('as_attachment') == 'true':
+        if as_attachment:
             response['content-disposition'] = 'attachment; %s' % file_expr
 
         try:
