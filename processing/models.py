@@ -79,26 +79,23 @@ class Transformation(LifecycleModelMixin, models.Model):
         if self.type and self.type not in self.pipeline._target_type.mapping:
             raise ValidationError({'type': _('Type is not supported by selected pipeline.')})
 
-        self.validate_extra_data(self._type.fields, self.extra_data)
+        self.validate_extra_data(self._type, self.extra_data)
 
     @classmethod
-    def validate_extra_data(cls, fields: dict, data: dict):
-        # TODO: replace this with serializers or forms
+    def validate_extra_data(cls, _type: 'definitions.TransformationType', data: dict):
         errors = []
-        for field_name, data_types in fields.items():
-            if field_name not in data.keys():
-                errors += ValidationError(
-                    _('Field "%(field_name)s" is required.'), params={'field_name': field_name}, code='required'
-                )
-                continue
 
-            if not isinstance(data[field_name], data_types):
-                errors += ValidationError(
-                    _('Field "%(field_name)s "value is not valid, must be of types (%(type)s)'),
-                    params={'field_name': field_name, 'type': ', '.join([x.__name__ for x in data_types])}, code='invalid'
-                )
+        serializer = _type.serializer(data=data)
+        serializer.is_valid(raise_exception=False)
 
-        if len(errors) > 0:
+        if serializer.errors:
+            for field, error in serializer.errors.items():
+                error_detail = error[0]
+                errors += ValidationError('%(field_name)s: %(error)s', params={
+                    'field_name': field,
+                    'error': error_detail,
+                }, code=getattr(error_detail, 'code', None))
+
             raise ValidationError({'extra_data': errors})
 
         return data

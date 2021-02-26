@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from .backends import (all, audio, image, video)
+from . import serializers
 
 
 def empty_process_file_function(file, **options):
@@ -32,32 +33,16 @@ class TransformationType(models.TextChoices):
         return [cls.IMAGE_CLASSIFY, cls.CHECKSUM]
 
     @property
-    def fields(self) -> dict:
-        fields = {
-            self.COMPRESS: {
-                'quality': (int,)
-            },
-            self.IMAGE_COMPRESS: {
-                'quality': (int,)
-            },
-            self.RESIZE: {
-                'height': (int,),
-                'width': (int,),
-                'upscale': (bool, )
-            },
-            self.ADJUST: {
-                'color': (float,),
-                'brightness': (float,),
-                'contrast': (float,),
-                'sharpness': (float,)
-            },
-            self.CHECKSUM: {
-                'type': (str, )  # Must be MD5, or SHA256
-            },
-            self.IMAGE_CLASSIFY: {},
+    def serializer(self):
+        mapping = {
+            self.COMPRESS: serializers.CompressSerializer,
+            self.CHECKSUM: serializers.ChecksumSerializer,
+            self.IMAGE_COMPRESS: serializers.ImageCompressSerializer,
+            self.RESIZE: serializers.ImageResizeSerializer,
+            self.ADJUST: serializers.ImageAdjustSerializer,
         }
 
-        return fields.get(self, {})
+        return mapping.get(self, serializers.BaseSerializer)
 
     @property
     def process_file_function(self):
