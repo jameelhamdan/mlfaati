@@ -53,7 +53,7 @@ class GenericFileView(BaseAPIMixin, mixins.RetrieveModelMixin, mixins.DestroyMod
 
 urlpatterns = [
     path('upload', UploadView.as_view(), name='file_upload'),
-    path('<uuid:pk>', GenericFileView.as_view(), name='file'),
+    path('<str:pk>', GenericFileView.as_view(), name='file'),
     path('<str:space_name>/<path:path>', GenericFileView.as_view(), name='file_by_path'),
 
 ]

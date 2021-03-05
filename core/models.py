@@ -1,4 +1,3 @@
-import uuid
 import os
 from datetime import timedelta
 from django.contrib.postgres.fields import ArrayField
@@ -14,6 +13,7 @@ from app import config
 from common import validators, crypt
 from common.crypt import short_uuid
 import processing.tasks
+from common.fields import AutoUUIDField
 from . import tasks
 import processing.definitions
 
@@ -51,7 +51,7 @@ class Space(LifecycleModelMixin, models.Model):
                 cls.PRIVATE.name: cls.PRIVATE.value,
             }
 
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
+    id = AutoUUIDField()
     privacy = models.CharField(
         max_length=10, choices=PRIVACY.choices, default=PRIVACY.PUBLIC, db_index=True,
         help_text=_('Whether files inside space can be accessed publicly')
@@ -81,6 +81,7 @@ class FolderQueryset(TreeQuerySet):
 
 
 class Folder(LifecycleModelMixin, TreeNode):
+    id = AutoUUIDField()
     name = models.CharField(max_length=256, db_index=True)
     parent: 'Folder' = TreeNodeForeignKey(
         'self', on_delete=models.CASCADE, null=True, blank=True, related_name='children'
@@ -200,7 +201,7 @@ class FileQueryset(models.QuerySet):
 
 
 class File(LifecycleModelMixin, models.Model):
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True, db_index=True, unique=True, editable=False)
+    id = AutoUUIDField()
     name = models.CharField(max_length=256, db_index=True)
     content_type = models.CharField(max_length=144, db_index=True)
     content_length = models.IntegerField(default=0)

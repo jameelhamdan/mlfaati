@@ -1,4 +1,3 @@
-from uuid import UUID
 from django.urls import path
 from rest_framework import generics, exceptions
 from api.generic import BaseAPIMixin
@@ -28,14 +27,8 @@ class ListFolderView(BaseAPIMixin, generics.ListAPIView):
 
         if query_type == QUERY_TYPE_NAME:
             qs = qs.filter(space__name=space_id)
-
         elif query_type == QUERY_TYPE_ID:
-            try:
-                space_uuid = UUID(space_id, version=4)
-            except ValueError:
-                raise exceptions.ParseError('UUID format is invalid.')
-
-            qs = qs.filter(space_id=space_uuid)
+            qs = qs.filter(space_id=space_id)
         else:
             raise exceptions.ParseError('Unknown query type.')
 
@@ -62,12 +55,7 @@ class ListFileView(BaseAPIMixin, generics.ListAPIView):
             qs = qs.filter(space__name=space_id)
 
         elif query_type == QUERY_TYPE_ID:
-            try:
-                space_uuid = UUID(space_id, version=4)
-            except ValueError:
-                raise exceptions.ParseError('UUID format is invalid.')
-
-            qs = qs.filter(space_id=space_uuid)
+            qs = qs.filter(space_id=space_id)
         else:
             raise exceptions.ParseError('Unknown query type.')
 

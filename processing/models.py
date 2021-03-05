@@ -5,6 +5,7 @@ from django.db import models
 from django_lifecycle import LifecycleModelMixin
 import core.models
 from common import validators
+from common.fields import AutoUUIDField
 from . import definitions
 
 
@@ -17,6 +18,7 @@ class Pipeline(LifecycleModelMixin, models.Model):
 
     TYPES = definitions.FileType
 
+    id = AutoUUIDField()
     name = models.SlugField(max_length=20, validators=[validators.PipelineNameValidator])
     is_enabled = models.BooleanField(default=True, db_index=True)
     target_type = models.CharField(
@@ -57,6 +59,7 @@ class Transformation(LifecycleModelMixin, models.Model):
     """
     TYPES = definitions.TransformationType
 
+    id = AutoUUIDField()
     pipeline: 'Pipeline' = models.ForeignKey('Pipeline', on_delete=models.CASCADE, related_name='transformations')
     type = models.CharField(choices=TYPES.choices, max_length=16, db_index=True)
     extra_data = models.JSONField(

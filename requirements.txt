@@ -12,6 +12,8 @@ django-sql-utils==0.6.1
 django-lifecycle==0.8.0
 django-tree-queries==0.4.3
 PyJWT==2.0.0
+shortuuid==1.0.1
+python-baseconv
 # Async tasks
 django-celery-results==2.0.0
 Celery==5.0.5
