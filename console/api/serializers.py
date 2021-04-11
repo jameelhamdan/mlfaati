@@ -74,7 +74,7 @@ class CreateFolderSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({'parent': _('Parent folder does not belong to the selected space.')})
 
         # Check unique constraint
-        qs = core.models.Folder.objects.filter(parent_id=parent_folder)
+        qs = core.models.Folder.objects.filter(parent_id=parent_folder, space_id=space.id)
 
         if name and qs.filter(name=name).exists():
             raise serializers.ValidationError(
