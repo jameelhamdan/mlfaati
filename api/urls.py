@@ -7,4 +7,6 @@ urlpatterns = [
     path('space/', include('api.space.views')),
     path('folder/', include('api.folder.views')),
     path('file/', include('api.file.views')),
+    path('transformation/', include('api.transformation.views')),
+    path('pipeline/', include('api.pipeline.views')),
 ]

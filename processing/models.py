@@ -31,6 +31,9 @@ class Pipeline(LifecycleModelMixin, models.Model):
         related_name='pipelines'
     )
 
+    created_on = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_on = models.DateTimeField(auto_now=True, db_index=True)
+
     @property
     def _target_type(self) -> definitions.FileType:
         return self.TYPES(self.target_type)
@@ -64,6 +67,9 @@ class Transformation(LifecycleModelMixin, models.Model):
         help_text=_("transformation configuration (Shouldn\'t) be manually edited)"),
         blank=True
     )
+
+    created_on = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_on = models.DateTimeField(auto_now=True, db_index=True)
 
     @property
     def _type(self) -> definitions.TransformationType:
