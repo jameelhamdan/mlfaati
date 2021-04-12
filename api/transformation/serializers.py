@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 import processing.models
 
@@ -7,6 +8,19 @@ class CreateTransformationSerializer(serializers.ModelSerializer):
         queryset=processing.models.Pipeline.objects.none(),
         required=True
     )
+
+    def validate(self, data):
+        transform_type = processing.models.Transformation.TYPES(data['type'])
+        pipeline = data['pipeline']
+        extra_data = data.get('extra_data', {})
+
+        if transform_type.value not in pipeline._target_type.mapping:
+            raise serializers.ValidationError({'type': _('Type is not supported by selected pipeline.')})
+
+        # TODO: improve how extra_data errors show in response
+        processing.models.Transformation.validate_extra_data(transform_type, extra_data)
+
+        return data
 
     class Meta:
         model = processing.models.Transformation
@@ -18,8 +32,20 @@ class CreateTransformationSerializer(serializers.ModelSerializer):
 
 
 class TransformationSerializer(serializers.ModelSerializer):
+    def validate(self, data):
+        transform_type = processing.models.Transformation.TYPES(data['type'])
+        extra_data = data.get('extra_data', {})
+
+        if transform_type.value not in self.instance.pipeline._target_type.mapping:
+            raise serializers.ValidationError({'type': _('Type is not supported by selected pipeline.')})
+
+        # TODO: improve how extra_data errors show in response
+        processing.models.Transformation.validate_extra_data(transform_type, extra_data)
+
+        return data
+
     class Meta:
         model = processing.models.Transformation
         fields = [
-            'id', 'type', 'extra_data', 'pipeline_id', 'created_on', 'updated_on'
+            'id', 'type', 'extra_data', 'created_on', 'updated_on'
         ]

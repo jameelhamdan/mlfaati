@@ -37,11 +37,13 @@ class PipelineSerializer(serializers.ModelSerializer):
 
 
 class UpdatePipelineSerializer(serializers.ModelSerializer):
+    """
+    Only is_enabled is allowed to be updated to keep data consistency
+    """
+
     class Meta:
         model = processing.models.Pipeline
-        fields = [
-            'name', 'is_enabled', 'target_type'
-        ]
+        fields = ['is_enabled']
 
 
 class ExtendedPipelineSerializer(serializers.ModelSerializer):
