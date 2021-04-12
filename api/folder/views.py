@@ -81,7 +81,7 @@ class GenericFolderView(
 
 
 urlpatterns = [
-    path('create', CreateFolderView.as_view(), name='folder_create'),
-    path('<str:pk>', GenericFolderView.as_view(), name='folder'),
-    path('<str:space_name>/<path:path>', GenericFolderView.as_view(), name='folder_by_path'),
+    path('', CreateFolderView.as_view(), name='folder_create'),
+    path('/<str:pk>', GenericFolderView.as_view(), name='folder'),
+    path('/<str:space_name>/<path:path>', GenericFolderView.as_view(), name='folder_by_path'),
 ]

@@ -8,6 +8,11 @@ from common import validators
 from . import definitions
 
 
+class PipelineQueryset(models.QuerySet):
+    def owned(self, user):
+        return self.filter(folder__space__owner_id=user.pk)
+
+
 class Pipeline(LifecycleModelMixin, models.Model):
     """
     Model to store pipeline for folder,
@@ -28,11 +33,13 @@ class Pipeline(LifecycleModelMixin, models.Model):
     folder: 'core.models.Folder' = models.ForeignKey(
         'core.Folder',
         on_delete=models.CASCADE,
-        related_name='pipelines'
+        related_name='pipelines',
     )
 
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
+
+    objects = PipelineQueryset.as_manager()
 
     @property
     def _target_type(self) -> definitions.FileType:

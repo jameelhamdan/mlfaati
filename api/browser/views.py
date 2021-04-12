@@ -75,8 +75,8 @@ class ListFileView(BaseAPIMixin, generics.ListAPIView):
 
 
 urlpatterns = [
-    path('<str:space_id>/folders', ListFolderView.as_view(), name='browser_folder_root'),
-    path('<str:space_id>/folders/<str:parent_id>', ListFolderView.as_view(), name='browser_folder'),
-    path('<str:space_id>/files', ListFileView.as_view(), name='browser_file_root'),
-    path('<str:space_id>/files/<str:folder_id>', ListFileView.as_view(), name='browser_file')
+    path('/<str:space_id>/folders', ListFolderView.as_view(), name='browser_folder_root'),
+    path('/<str:space_id>/folders/<str:parent_id>', ListFolderView.as_view(), name='browser_folder'),
+    path('/<str:space_id>/files', ListFileView.as_view(), name='browser_file_root'),
+    path('/<str:space_id>/files/<str:folder_id>', ListFileView.as_view(), name='browser_file')
 ]
