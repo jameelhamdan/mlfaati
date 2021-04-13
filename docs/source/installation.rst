@@ -4,7 +4,8 @@ Installation
 Installation can be done either as a single docker container inside a ``docker-compose.yml`` using
 the docker image on dockerhub ``mlfaati:latest``
 
-## Embedded within an existing `docker-compose.yml`
+Embedded within an existing `docker-compose.yml`
+------------------------------------------------
 
 .. code-block:: yaml
     :caption: ``docker-compose.yml``
@@ -30,7 +31,8 @@ which can be changed in ``conf.py`` or directly as environment variables as in `
 nginx can be configured based on ``conf/nginx.http.conf`` or ``conf/nginx.conf`` with SSL.
 
 
-## using `docker-compose.yml`
+using `docker-compose.yml`
+--------------------------
 
 or you can use the provided ``docker-compose-yml`` and run this command in order to run
 all required services.
@@ -41,7 +43,8 @@ all required services.
 
 
 
-## Post Installation
+Post Installation
+-----------------
 
 After installation you will need to create a user, this can be done using django command
 from inside a running docker container:
