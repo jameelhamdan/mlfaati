@@ -108,12 +108,13 @@ CACHES = {
 
 AUTH_USER_MODEL = 'users.User'
 SESSION_ENGINE = 'qsessions.backends.cached_db'
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 APPEND_SLASH = False
 
-LOGIN_URL = '/auth/login'
+LOGIN_URL = '/auth/login/'
 LOGOUT_REDIRECT_URL = LOGIN_URL
-LOGIN_REDIRECT_URL = '/console'
+LOGIN_REDIRECT_URL = '/console/'
 
 
 # Email setup

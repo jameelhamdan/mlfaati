@@ -23,7 +23,7 @@ author = 'Jameel Hamdan'
 
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.6a'
+release = '0.0.7a'
 
 # -- General configuration ---------------------------------------------------
 
@@ -51,7 +51,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

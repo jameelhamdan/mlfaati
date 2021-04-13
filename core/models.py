@@ -177,7 +177,7 @@ class Folder(LifecycleModelMixin, TreeNode):
         constraints = [
             UniqueConstraint(
                 name='%(app_label)s_%(class)s_unique_name_parent_nullable',
-                fields=['name'],
+                fields=['name', 'space_id'],
                 condition=Q(parent__isnull=True)
             ),
             UniqueConstraint(

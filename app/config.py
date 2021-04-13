@@ -1,7 +1,7 @@
 from django.conf import settings
 
 
-VERSION = '0.0.6a'
+VERSION = '0.0.7a'
 SITE_NAME = 'Mlfaati'
 GITHUB_REPO = 'https://github.com/Kingjmk/mlfaati'
 AUTHOR = 'Jameel Hamdan'

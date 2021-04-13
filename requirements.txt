@@ -1,19 +1,19 @@
 # General
-django==3.1.5
+django==3.2
 django-redis==4.12.1
 psycopg2-binary==2.8.6
-daphne==3.0.1
-django-crispy-forms==1.10.0
+daphne==3.0.2
+django-crispy-forms==1.11.2
 django-qsessions==1.1.2
 dj-database-url==0.5.0
 django-menu-generator==1.1.0
-djangorestframework==3.12.2
+djangorestframework==3.12.4
 django-sql-utils==0.6.1
-django-lifecycle==0.8.0
+django-lifecycle==0.9.1
 django-tree-queries==0.4.3
-PyJWT==2.0.0
+PyJWT==2.0.1
 # Async tasks
-django-celery-results==2.0.0
+django-celery-results==2.0.1
 Celery==5.0.5
 
 # Image processing
