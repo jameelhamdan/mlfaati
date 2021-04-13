@@ -19,7 +19,7 @@ class ExtendedFolderSerializer(serializers.ModelSerializer):
     class Meta:
         model = core.models.Folder
         fields = [
-            'id', 'name', 'path', 'full_path', 'created_on', 'updated_on', 'parent', 'space'
+            'id', 'name', 'path', 'full_path', 'created_on', 'updated_on', 'parent', 'space_id'
         ]
 
 

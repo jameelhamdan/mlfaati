@@ -13,5 +13,5 @@ class ListSpaceView(BaseAPIMixin, generics.ListAPIView):
 
 
 urlpatterns = [
-    path('list', ListSpaceView.as_view(), name='list'),
+    path('', ListSpaceView.as_view(), name='space'),
 ]
