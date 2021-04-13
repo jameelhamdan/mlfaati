@@ -10,6 +10,7 @@ Using Management Command
 Using the user email you can generate a new token using the following command:
 
 .. code-block:: shell
+
     $ python manage.py generate_token admin@example.com
 
 when command is finished it will return the token.
@@ -21,4 +22,5 @@ Authenticating Requests
 the HTTP `Authorization` header can be used to authenticate requests, which must be added like the following:
 
 .. code-block::
+
     Authorization: Token 401f7ac837da42b97f613d789819ff93537bee6a

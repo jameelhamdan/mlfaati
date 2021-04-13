@@ -12,7 +12,6 @@ Introduction
    self
    installation
    api/index
-   api/auth
 
 What is Mlfaati?
 ----------------
