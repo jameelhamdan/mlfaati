@@ -121,7 +121,7 @@ class Folder(LifecycleModelMixin, TreeNode):
             )
 
         # Check unique constraint
-        qs = self.__class__.objects.filter(parent_id=self.parent_id)
+        qs = self.__class__.objects.filter(parent_id=self.parent_id, space_id=self.space_id)
         if self.pk:
             qs = qs.exclude(pk=self.pk)
 
@@ -132,7 +132,7 @@ class Folder(LifecycleModelMixin, TreeNode):
 
     def _perform_unique_checks(self, unique_checks):
         errors = super()._perform_unique_checks(unique_checks)
-        qs = self.__class__.objects.all()
+        qs = self.__class__.objects.filter(space_id=self.space_id)
         if self.pk:
             qs = qs.exclude(pk=self.pk)
 
