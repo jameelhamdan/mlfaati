@@ -193,7 +193,7 @@
                     allowOutsideClick: () => !Swal.isLoading(),
                     preConfirm: (file) => {
                         const formData = new FormData();
-                        formData.append('content', file);
+                        if(file) formData.append('content', file);
                         formData.append('space', $this.space_id);
                         if(!!folder){
                             formData.append('folder', folder?.id ?? null);

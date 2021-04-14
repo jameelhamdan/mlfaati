@@ -100,6 +100,11 @@ class UpdateFolderSerializer(serializers.ModelSerializer):
 
 class CreateFileSerializer(serializers.ModelSerializer):
     space = serializers.PrimaryKeyRelatedField(queryset=core.models.Space.objects.none(), required=True)
+    content = serializers.FileField(
+        required=True, error_messages={
+            'required': _('File is required.')
+        }
+    )
 
     def validate(self, data):
         parent_folder = data.get('folder')
