@@ -10,7 +10,7 @@ List Space Folders
 
     GET /browser/{space}/folders
 
-This endpoints returns all folders in Root directory.
+Returns all folders in Root directory.
 
 Parameters
 ^^^^^^^^^^
@@ -29,8 +29,8 @@ Parameters
 
    * - :code:`by`
      - string
-     - query parameter
-     - Specify list by space name or id, must be provided as :code:`name` or :code:`id`
+     - query
+     - Specify list by space name or id, must be provided as :code:`name` or :code:`id`. Default :code:`id`
 
 Response
 ^^^^^^^^
@@ -53,6 +53,7 @@ Response
         }
     ]
 
+**********************************
 
 List Space Folder's Sub Folders
 -------------------------------
@@ -60,7 +61,7 @@ List Space Folder's Sub Folders
 
     GET /browser/{space}/folders/{folder}
 
-This endpoints returns all folders in specified directory.
+Returns all folders in specified directory.
 
 Parameters
 ^^^^^^^^^^
@@ -84,8 +85,8 @@ Parameters
 
    * - :code:`by`
      - string
-     - query parameter
-     - Specify list by space name or id, must be provided as :code:`name` or :code:`id`
+     - query
+     - Specify list by space name or id, must be provided as :code:`name` or :code:`id`. Default :code:`id`
 
 Response
 ^^^^^^^^
@@ -108,13 +109,15 @@ Response
         }
     ]
 
+**********************************
+
 List Space Files
 ----------------
 .. code-block::
 
     GET /browser/{space}/files
 
-This endpoints returns all files in Root directory.
+Returns all files in Root directory.
 
 Parameters
 ^^^^^^^^^^
@@ -133,8 +136,8 @@ Parameters
 
    * - :code:`by`
      - string
-     - query parameter
-     - Specify list by space name or id, must be provided as :code:`name` or :code:`id`
+     - query
+     - Specify list by space name or id, must be provided as :code:`name` or :code:`id`. Default :code:`id`
 
 Response
 ^^^^^^^^
@@ -155,6 +158,7 @@ Response
         }
     ]
 
+**********************************
 
 List Space Folder's Files
 -------------------------
@@ -162,7 +166,7 @@ List Space Folder's Files
 
     GET /browser/{space}/files/{folder}
 
-This endpoints returns all files in specified directory.
+Returns all files in specified directory.
 
 Parameters
 ^^^^^^^^^^
@@ -186,8 +190,8 @@ Parameters
 
    * - :code:`by`
      - string
-     - query parameter
-     - Specify list by space name or id, must be provided as :code:`name` or :code:`id`
+     - query
+     - Specify list by space name or id, must be provided as :code:`name` or :code:`id`. Default :code:`id`
 
 Response
 ^^^^^^^^

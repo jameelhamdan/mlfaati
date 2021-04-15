@@ -33,16 +33,19 @@ class GenericFolderView(
         queryset = self.filter_queryset(self.get_queryset())
 
         if 'pk' in self.kwargs.keys():
-            return get_object_or_404(queryset, pk=self.kwargs['pk'])
+            obj = get_object_or_404(queryset, pk=self.kwargs['pk'])
 
         elif 'path' in self.kwargs.keys() and 'space_name' in self.kwargs.keys():
             space_name = self.kwargs['space_name']
             given_path = self.kwargs['path'].strip(core.models.DIRECTORY_SEPARATOR)
-            return get_object_or_404(
+            obj = get_object_or_404(
                 queryset, space__name=space_name, path=given_path.split(core.models.DIRECTORY_SEPARATOR)
             )
+        else:
+            raise exceptions.ParseError('Requested kwarg is not allowed')
 
-        raise exceptions.ParseError('Requested kwarg is not allowed')
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)

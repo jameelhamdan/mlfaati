@@ -32,17 +32,20 @@ class GenericFileView(BaseAPIMixin, mixins.RetrieveModelMixin, mixins.DestroyMod
         queryset = self.filter_queryset(self.get_queryset())
 
         if 'pk' in self.kwargs.keys():
-            return get_object_or_404(queryset, pk=self.kwargs['pk'])
+            obj = get_object_or_404(queryset, pk=self.kwargs['pk'])
         elif 'path' in self.kwargs.keys() and 'space_name' in self.kwargs.keys():
             space_name = self.kwargs['space_name']
             dir_name, file_name = os.path.split(self.kwargs['path'])
             given_path = dir_name.split(core.models.DIRECTORY_SEPARATOR) if dir_name != '' else None
 
-            return get_object_or_404(
+            obj = get_object_or_404(
                 queryset, space__name=space_name, folder__path=given_path, name=file_name
             )
+        else:
+            raise exceptions.ParseError('Requested kwarg is not allowed')
 
-        raise exceptions.ParseError('Requested kwarg is not allowed')
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -54,7 +57,7 @@ class GenericFileView(BaseAPIMixin, mixins.RetrieveModelMixin, mixins.DestroyMod
 urlpatterns = [
     path('', UploadView.as_view(), name='file_upload'),
     path('/upload', UploadView.as_view(), name='file_upload_alt'),
-    path('/<uuid:pk>', GenericFileView.as_view(), name='file'),
+    path('/<str:pk>', GenericFileView.as_view(), name='file'),
     path('/<str:space_name>/<path:path>', GenericFileView.as_view(), name='file_by_path'),
 
 ]

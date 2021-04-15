@@ -8,8 +8,6 @@ Embedded within an existing :code:`docker-compose.yml`
 ------------------------------------------------------
 
 .. code-block:: yaml
-    :caption: ``docker-compose.yml``
-    :name: your existing docker compose
 
     mlfaati_web:
       image: "mlfaati:latest"
