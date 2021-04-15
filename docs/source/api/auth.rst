@@ -19,8 +19,38 @@ when command is finished it will return the token.
 Authenticating Requests
 -----------------------
 
-the HTTP `Authorization` header can be used to authenticate requests, which must be added like the following:
+the HTTP :code:`Authorization` header can be used to authenticate requests, which must be added like the following:
 
 .. code-block::
 
     Authorization: Token 401f7ac837da42b97f613d789819ff93537bee6a
+
+
+Invalid Auth
+------------
+
+If for whatever reason the token was invalid, missing or deleted requests will return this response
+
+.. code-block::
+
+    Status: 401 Unauthorized
+
+
+.. code-block:: JSON
+
+    {
+        "detail": "Invalid token."
+    }
+
+Or if the :code:`Authorization` was not provided or mistyped requests will return this response
+
+.. code-block::
+
+    Status: 401 Unauthorized
+
+
+.. code-block:: JSON
+
+    {
+        "detail": "Authentication credentials were not provided."
+    }

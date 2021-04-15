@@ -1,10 +1,5 @@
-.. Mlfaati documentation master file, created by
-   sphinx-quickstart on Fri Feb 12 15:34:41 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Introduction
-===================================
+============
 
 .. toctree::
    :maxdepth: 2

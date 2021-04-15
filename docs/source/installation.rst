@@ -1,11 +1,11 @@
 Installation
 ============
 
-Installation can be done either as a single docker container inside a ``docker-compose.yml`` using
-the docker image on dockerhub ``mlfaati:latest``
+Installation can be done either as a single docker container inside a :code:`docker-compose.yml` using
+the docker image on dockerhub :code:`mlfaati:latest`
 
-Embedded within an existing `docker-compose.yml`
-------------------------------------------------
+Embedded within an existing :code:`docker-compose.yml`
+------------------------------------------------------
 
 .. code-block:: yaml
     :caption: ``docker-compose.yml``
@@ -26,15 +26,15 @@ Embedded within an existing `docker-compose.yml`
 
 
 *Note*:
-this method requires you to provide your own ``postgres``, ``redis``, and ``nginx`` configurations,
-which can be changed in ``conf.py`` or directly as environment variables as in ``.env-example``, and
-nginx can be configured based on ``conf/nginx.http.conf`` or ``conf/nginx.conf`` with SSL.
+this method requires you to provide your own :code:`postgres`, :code:`redis`, and :code:`nginx` configurations,
+which can be changed in :code:`conf.py` or directly as environment variables as in :code:`.env-example`, and
+nginx can be configured based on :code:`conf/nginx.http.conf` or :code:`conf/nginx.conf` with HTTPS.
 
 
-using `docker-compose.yml`
---------------------------
+using :code:`docker-compose.yml`
+--------------------------------
 
-or you can use the provided ``docker-compose-yml`` and run this command in order to run
+or you can use the provided :code:`docker-compose-yml` and run this command in order to run
 all required services.
 
 .. code-block:: shell
