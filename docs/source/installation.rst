@@ -2,7 +2,7 @@ Installation
 ============
 
 Installation can be done either as a single docker container inside a :code:`docker-compose.yml` using
-the docker image on dockerhub :code:`mlfaati:latest`
+the docker image on dockerhub :code:`jameelhamdan/mlfaati:latest`
 
 Embedded within an existing :code:`docker-compose.yml`
 ------------------------------------------------------
@@ -10,7 +10,7 @@ Embedded within an existing :code:`docker-compose.yml`
 .. code-block:: yaml
 
     mlfaati_web:
-      image: "mlfaati:latest"
+      image: "jameelhamdan/mlfaati:latest"
       command: bash -c "./scripts/release.sh && daphne -b 0.0.0.0 -p 8000 app.server:application"
       env_file: .mlfaati_env
       volumes:

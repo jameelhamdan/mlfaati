@@ -1,1 +1,1 @@
-sphinx-build docs/source docs/build
+sphinx-build docs/source docs/_build

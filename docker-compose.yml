@@ -8,14 +8,14 @@ services:
       - redis_data:/data
 
   postgres:
-    image: "postgres:13.1"
+    image: "postgres:13.2"
     restart: always
     env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   nginx:
-    image: "nginx:1.19.6-alpine"
+    image: "nginx:1.19.10-alpine"
     restart: always
     volumes:
       - static_volume:/usr/src/app/.static
@@ -30,8 +30,8 @@ services:
     depends_on:
       - server
 
-  server:  # You will have to build the image and call it "mlfaati:latest"
-    image: "mlfaati:latest"
+  server:  # Or use your own built image
+    image: "jameelhamdan/mlfaati:latest"
     command: bash -c "./scripts/release.sh && daphne -b 0.0.0.0 -p 8000 app.server:application"
     env_file: .env
     volumes:
@@ -47,7 +47,7 @@ services:
       - postgres
 
   celery:  # Not necessary if you disable async
-    image: "mlfaati:latest"
+    image: "jameelhamdan/mlfaati:latest"
     command: celery -A app.celery_app worker -l info
     env_file: .env
     volumes:
