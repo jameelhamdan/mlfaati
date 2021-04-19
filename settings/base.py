@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'cdn',
     'console',
     'api',
+    'docs',
 ]
 
 MIDDLEWARE = [
@@ -112,7 +113,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 APPEND_SLASH = False
 
-LOGIN_URL = '/auth/login/'
+LOGIN_URL = '/auth/login'
 LOGOUT_REDIRECT_URL = LOGIN_URL
 LOGIN_REDIRECT_URL = '/console/'
 
