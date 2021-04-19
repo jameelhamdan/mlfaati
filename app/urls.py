@@ -20,5 +20,6 @@ urlpatterns = [
     path('api/v1/', include('api.urls')),
     path('console/', include('console.urls')),
     path('auth/', include('users.urls')),
+    path('docs', include('docs.urls')),
     path('', IndexView.as_view(), name='index'),
 ] + debug_urls

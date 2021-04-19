@@ -1,3 +1,6 @@
+from django.views.decorators.cache import cache_page
+
+
 class BreadcrumbsMixin:
     """
     This will handle building and passing breadcrumbs to view
