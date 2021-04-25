@@ -1,6 +1,7 @@
 const gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
 plugins.del = require('del');
+plugins.cleanCSS = require('gulp-clean-css');
 
 const TARGET_DIR = './static';
 
@@ -62,6 +63,7 @@ gulp.task('css', function () {
     .pipe(plugins.autoprefixer({
         overrideBrowserslist: ['> 1%']
     }))
+    .pipe(plugins.cleanCSS())
     .pipe(plugins.sourcemaps.write('.'))
     .pipe(gulp.dest(paths.dist.css));
 });
