@@ -1,12 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load i18n %}
-{% block css %}
-    <link type="text/css" href="{% static 'css/browser.css' %}" rel="stylesheet">
-{% endblock %}
 
 {% block content %}
-    <div id="browserApp" class="row">
+    <div id="browser-app" class="row">
         <div class="col-12">
             <div class="card shadow-sm mb-4">
                 <div class="card-header">
@@ -109,7 +106,7 @@
     </div>
 {% endblock %}
 {% block javascript %}
-    <script src="{% static 'vendor/vue/vue.min.js' %}"></script>
+    <script src="{% static 'vendor/vue/vue.global.prod.js' %}"></script>
     <script>
         const space_id = "{{ space.pk }}";
         const rootApiUrl = "{% url 'console:api_browser' pk=space.pk %}";

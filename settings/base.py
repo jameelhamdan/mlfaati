@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'menu_generator',
 
     # Apps
+    'frontend',
     'users',
     'core',
     'processing',
@@ -187,9 +188,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 STATICFILES_STORAGE = 'app.staticfiles.StaticFilesStorage'
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, '.static')
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
+STATICFILES_DIRS = []
 
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

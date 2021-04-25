@@ -30,11 +30,9 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="theme-color" content="#ffffff">
 
-
     <!-- Main CSS -->
     <link type="text/css" href="{% static 'fonts/feather/feather.css' %}" rel="stylesheet">
-    <link type="text/css" href="{% static 'css/main.css' %}" rel="stylesheet">
-    <link type="text/css" href="{% static 'css/custom.css' %}" rel="stylesheet">
+    <link type="text/css" href="{% static 'css/app.css' %}" rel="stylesheet">
 
     {% block css %}
         {{ block.super }}
@@ -63,16 +61,7 @@
 
 
 <!-- Core -->
-<script src="{% static 'vendor/popper.js/dist/popper.min.js' %}"></script>
-<script src="{% static 'vendor/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
-
-<script src="{% static 'vendor/onscreen/dist/on-screen.umd.min.js' %}"></script>
-<script src="{% static 'vendor/smooth-scroll/dist/smooth-scroll.polyfills.min.js' %}"></script>
-<script src="{% static 'vendor/moment/moment.min.js' %}"></script>
-
-<script src="{% static 'vendor/sweetalert2/sweetalert2.min.js' %}"></script>
-<script src="{% static 'vendor/axios/axios.min.js' %}"></script>
-<script src="{% static 'vendor/jquery/jquery.slim.min.js' %}"></script>
+<script src="{% static 'vendor/vendor.min.js' %}"></script>
 
 <script>
     axios.defaults.xsrfCookieName = 'csrftoken';

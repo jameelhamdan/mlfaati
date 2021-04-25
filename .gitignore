@@ -137,4 +137,6 @@ media/*
 .static/*
 /.env
 
+docker-compose.local.yml
+
 /bin/models/
