@@ -1,0 +1,53 @@
+/**
+ * = Custom Styles
+ */
+
+#top-navbar {
+  padding: 0.625rem 1rem 0rem 1rem !important;
+  background: #f5f8fb;
+  border-bottom: 1px solid rgba(46, 54, 80, 0.125);
+  border-radius: 0;
+}
+
+
+main {
+  min-height: 100vh;
+
+  .main-content {
+    flex: 1 0 auto;
+  }
+
+  footer.footer {
+    flex-shrink: unset;
+  }
+}
+
+main.content {
+    padding-top: 70px !important;
+    margin-left: 0;
+}
+
+.remove-asterisk .asteriskField {
+  display: none;
+}
+
+@for $nr from 1 to 20 {
+  .w-#{$nr*5} {
+    width:#{$nr*5} * 1%;
+  }
+}
+
+.show-pointer:hover {
+  cursor: pointer;
+}
+
+[unselectable="on"] {
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard */
+}
+
+[v-cloak] {
+  display: none
+}

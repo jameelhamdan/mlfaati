@@ -1,0 +1,21 @@
+/**
+ * = File Browser app
+ */
+
+#browser-app {
+  .table-responsive {
+    max-height: 65vh;
+    overflow-y: scroll;
+  }
+
+  .table-responsive thead th {
+    position: sticky;
+    top: 0;
+  }
+
+  .detailsCard {
+    min-height: 50vh;
+    max-height: 65vh;
+  }
+}
+
