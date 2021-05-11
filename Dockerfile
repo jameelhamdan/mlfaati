@@ -4,3 +4,4 @@ COPY requirements.txt /
 RUN pip install --upgrade pip && pip install -r requirements.txt
 WORKDIR /usr/src/app
 COPY . .
+RUN chmod -R 777 .
