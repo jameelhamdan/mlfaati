@@ -30,6 +30,7 @@ gulp.task('clean', function(){
 gulp.task('vendor', function () {
     return gulp.src([
         paths.src.node_modules + '/bootstrap/dist/js/bootstrap.bundle.min.js',
+        paths.src.node_modules + '/jquery/dist/jquery.slim.min.js',
         paths.src.node_modules + '/onscreen/dist/on-screen.umd.js',
         paths.src.node_modules + '/smooth-scroll/dist/smooth-scroll.polyfills.min.js',
         paths.src.node_modules + '/moment/min/moment.min.js',

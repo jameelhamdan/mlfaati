@@ -1,5 +1,5 @@
 # General
-django==3.2
+django==3.2.2
 django-redis==4.12.1
 psycopg2-binary==2.8.6
 daphne==3.0.2

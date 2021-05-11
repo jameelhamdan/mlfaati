@@ -69,18 +69,18 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: /var/certs
+      device: /var/certs/mlfaati
 
   logs_app:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /log/app
+      device: /var/log/mlfaati/app
 
   logs_nginx:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /log/nginx
+      device: /var/log/mlfaati/nginx

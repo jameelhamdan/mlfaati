@@ -27,10 +27,12 @@
                 <li class="list-group-item d-flex align-items-center justify-content-between px-0 {% if not forloop.last %}border-bottom{% else %}pb-0{%endif%}">
                     <div>
                         <h3 class="h6 mb-1">{{ token.short_key }}</h3>
-                        <p class="small pe-4 mb-0">{% trans 'Added on ' %} <span title="{{token.created_on}}">{{token.created_on|date}}</span></p>
+                        <p class="small pe-4 mb-0">{% trans 'Added on ' %} <span title="{{token.created_on}}">{{token.created_on|date}}</span>
+                        </p>
                     </div>
                     <div>
-                        <a class="copy-button" data-token="{{ token.key }}" title="{% trans 'Copy Token' %}" data-bs-toggle="tooltip" data-bs-placement="right">
+                        <a class="copy-button" data-token="{{ token.key }}" title="{% trans 'Copy Token' %}"
+                           data-bs-toggle="tooltip" data-bs-placement="right">
                             <i class="ft-1x ft-copy"></i>
                         </a>
                         <a class="remove-button" data-url="{% url 'auth:api_token_delete' key=token.key %}">
@@ -46,7 +48,8 @@
         <div class="card shadow-sm text-center p-0">
             <div class="profile-cover rounded-top"></div>
             <div class="card-body pb-5">
-                <img src="{{ user.avatar }}" class="user-avatar large-avatar rounded-circle mx-auto mt-n7 mb-4" alt="{{ user.short_name }} Portrait">
+                <img src="{{ user.avatar }}" class="user-avatar large-avatar rounded-circle mx-auto mt-n7 mb-4"
+                     alt="{{ user.short_name }} Portrait">
                 <h4 class="h3">{{ user.full_name }}</h4>
                 <h5 class="fw-normal">{{ user.email }}</h5>
                 <p class="text-gray mb-4">{% trans 'Joined on '%} {{ user.date_joined|date }}</p>
@@ -56,61 +59,61 @@
 </div>
 {% endblock %}
 {% block javascript %}
-    <script>
-        $(document).on('click', '.add-button', function () {
-            const redirectUrl = $(this).data('url');
-            Swal.fire({
-                icon: 'question',
-                title: `{% trans 'Add new Token' %}?`,
-                showCancelButton: true,
-                confirmButtonText: 'Add',
-            }).then((result) => {
-                if (!result || !result.isConfirmed) return;
-                window.location = redirectUrl;
-            });
+<script>
+    $(document).on('click', '.add-button', function () {
+        const redirectUrl = $(this).data('url');
+        Swal.fire({
+            icon: 'question',
+            title: `{% trans 'Add new Token' %}?`,
+            showCancelButton: true,
+            confirmButtonText: 'Add',
+        }).then((result) => {
+            if (!result || !result.isConfirmed) return;
+            window.location = redirectUrl;
         });
-        $(document).on('click', '.copy-button', function(){
-            const el = document.createElement('textarea');
-            let $this = $(this);
+    });
+    $(document).on('click', '.copy-button', function () {
+        const el = document.createElement('textarea');
+        let $this = $(this);
 
-            el.value = $(this).data('token');
-            el.setAttribute('readonly', '');
-            el.style.position = 'absolute';
-            el.style.left = '-9999px';
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            let tooltip = bootstrap.Tooltip.getInstance($this[0])
-            tooltip.title = 'Copied!';
-            tooltip.update();
-            tooltip.show();
-        });
-        $(document).on('click', '.remove-button', function(){
-            let $this = $(this);
-            const deleteUrl = $this.data('url');
+        el.value = $(this).data('token');
+        el.setAttribute('readonly', '');
+        el.style.position = 'absolute';
+        el.style.left = '-9999px';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        let tooltip = bootstrap.Tooltip.getInstance($this[0])
+        tooltip.title = 'Copied!';
+        tooltip.update();
+        tooltip.show();
+    });
+    $(document).on('click', '.remove-button', function () {
+        let $this = $(this);
+        const deleteUrl = $this.data('url');
+        Swal.fire({
+            icon: 'error',
+            iconHtml: '<i class="ft-lock"></i>',
+            title: `{% trans 'Are you sure you want to delete this token?' %}`,
+            showCancelButton: true,
+            confirmButtonText: `{% trans 'Delete' %}`,
+            confirmButtonColor: '#fa5252',
+            showLoaderOnConfirm: true,
+            allowOutsideClick: () => !Swal.isLoading(),
+            preConfirm: () => {
+                return axios.delete(deleteUrl).then(res => {
+                    return res.data;
+                }).catch(handleSwalAxiosError);
+            },
+        }).then((result) => {
+            if (!result || !result.isConfirmed) return;
+            $this.parents('li.list-group-item').remove();
             Swal.fire({
-                icon: 'error',
-                iconHtml: '<i class="ft-lock"></i>',
-                title: `{% trans 'Are you sure you want to delete this token?' %}`,
-                showCancelButton: true,
-                confirmButtonText: `{% trans 'Delete' %}`,
-                confirmButtonColor: '#fa5252',
-                showLoaderOnConfirm: true,
-                allowOutsideClick: () => !Swal.isLoading(),
-                preConfirm: () => {
-                    return axios.delete(deleteUrl).then(res => {
-                        return res.data;
-                    }).catch(handleSwalAxiosError);
-                },
-            }).then((result) => {
-                if (!result || !result.isConfirmed) return;
-                $this.parents('li.list-group-item').remove();
-                Swal.fire({
-                    'icon': 'success',
-                    'text': `{% trans 'Token Deleted.' %}`,
-                });
-            })
-        });
-    </script>
+                'icon': 'success',
+                'text': `{% trans 'Token Deleted.' %}`,
+            });
+        })
+    })
+</script>
 {% endblock %}

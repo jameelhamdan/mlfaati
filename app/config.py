@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.urls import reverse_lazy
 
-VERSION = '0.0.8a'
+VERSION = '0.1.0a'
 SITE_NAME = 'Mlfaati'
 GITHUB_REPO = 'https://github.com/Kingjmk/mlfaati'
 DOCS_LINK = reverse_lazy('docs:root')
