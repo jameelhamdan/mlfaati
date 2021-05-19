@@ -26,6 +26,9 @@ class GenericTransformationView(
     lookup_url_kwarg = 'pk'
     queryset = processing.models.Transformation.objects.select_related('pipeline', 'pipeline__folder', 'pipeline__folder__space')
 
+    def get_queryset(self):
+        return self.queryset.owned(self.request.user)
+
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 

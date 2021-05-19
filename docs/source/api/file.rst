@@ -37,7 +37,7 @@ Parameters
      - body
      - Space ID
 
-   * - :code:`space`
+   * - :code:`folder`
      - string
      - body
      - Folder ID (optional)

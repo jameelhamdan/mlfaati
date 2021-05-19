@@ -61,6 +61,11 @@ class Pipeline(LifecycleModelMixin, models.Model):
         return self.name
 
 
+class TransformationQueryset(models.QuerySet):
+    def owned(self, user):
+        return self.filter(pipeline__folder__space__owner_id=user.pk)
+
+
 class Transformation(LifecycleModelMixin, models.Model):
     """
     Model to store transformation processes for folder
@@ -77,6 +82,8 @@ class Transformation(LifecycleModelMixin, models.Model):
 
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_on = models.DateTimeField(auto_now=True, db_index=True)
+
+    objects = TransformationQueryset.as_manager()
 
     @property
     def _type(self) -> definitions.TransformationType:

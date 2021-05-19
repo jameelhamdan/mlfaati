@@ -37,6 +37,9 @@ class GenericPipelineView(
     queryset = processing.models.Pipeline.objects.select_related('folder', 'folder__space').prefetch_related('transformations')
     lookup_url_kwarg = 'pk'
 
+    def get_queryset(self):
+        return processing.models.Pipeline.objects.owned(self.request.user)
+
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.detail_serializer_class(instance=instance)
