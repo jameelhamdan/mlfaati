@@ -1,6 +1,6 @@
 {
     "name": "@jameelhamdan/mlfaati",
-    "version": "0.1.0a",
+    "version": "0.1.1a",
     "description": "Mlfaati - frontend",
     "scripts": {
         "build": "gulp build"

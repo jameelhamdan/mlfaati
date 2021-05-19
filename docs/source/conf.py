@@ -23,7 +23,7 @@ author = 'Jameel Hamdan'
 
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0a'
+release = '0.1.1a'
 
 # -- General configuration ---------------------------------------------------
 

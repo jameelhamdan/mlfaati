@@ -35,7 +35,7 @@ Parameters
    * - :code:`type`
      - string
      - body
-     - Target file types ('ALL', 'IMAGE', 'VIDEO', 'AUDIO')
+     - Target file types ('COMPRESS', 'CHECKSUM', 'IMAGE_COMPRESS', 'IMAGE_CLASSIFY', 'RESIZE', 'ADJUST')
 
 
 Response
