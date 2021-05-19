@@ -29,6 +29,7 @@ class LogoutView(auth_views.LogoutView):
 class SettingsView(PageMixin, generic.UpdateView):
     template_name = 'settings/index.html'
     form_class = forms.SettingsForm
+    success_url = reverse_lazy('auth:settings')
     page_title = _('Settings')
     breadcrumbs = [
         (_('Settings'), '#'),
