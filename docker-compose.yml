@@ -39,21 +39,25 @@ services:
       - media_volume:/usr/src/app/media
       - logs_app:/var/log/app
       # Use this to custom settings without rebuilding image
-      - ./settings/conf.py:/var/log/app/settings/conf.py
+      - ./settings/conf.py:/usr/src/app/settings/conf.py
       # Use this to install extra dependencies without rebuilding image
-      - ./requirements-extra.txt:/var/log/app/requirements-extra.txt
+      - ./requirements-extra.txt:/usr/src/app/requirements-extra.txt
     depends_on:
       - redis
       - postgres
 
   celery:  # Not necessary if you disable async
     image: "jameelhamdan/mlfaati:latest"
-    command: celery -A app.celery_app worker -l info
+    command: bash -c "./scripts/release.sh && celery -A app.celery_app worker -l info"
     env_file: .env
     volumes:
       - static_volume:/usr/src/app/.static
       - media_volume:/usr/src/app/media
       - logs_app:/var/log/app
+      # Use this to custom settings without rebuilding image
+      - ./settings/conf.py:/usr/src/app/settings/conf.py
+      # Use this to install extra dependencies without rebuilding image
+      - ./requirements-extra.txt:/usr/src/app/requirements-extra.txt
     depends_on:
       - redis
       - postgres

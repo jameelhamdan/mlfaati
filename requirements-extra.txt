@@ -1,4 +1,4 @@
 # Use this file for extra requirements
 # Image classification
-tensorflow==2.4.1
+tensorflow-cpu
 imageai==2.1.6
