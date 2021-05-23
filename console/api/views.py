@@ -100,8 +100,8 @@ class CreateFileView(BaseAPIView, generics.CreateAPIView):
 
 urlpatterns = [
     path('browser/<uuid:pk>', BaseBrowserView.as_view(), name='api_browser'),
-    path('browser/<uuid:pk>/<int:folder_id>', FolderBrowserView.as_view(), name='api_browser_folder'),
+    path('browser/<uuid:pk>/<str:folder_id>', FolderBrowserView.as_view(), name='api_browser_folder'),
     path('folder/create', CreateFolderView.as_view(), name='api_folder_create'),
-    path('folder/<int:pk>/update', UpdateFolderView.as_view(), name='api_folder_update'),
+    path('folder/<str:pk>/update', UpdateFolderView.as_view(), name='api_folder_update'),
     path('file/create', CreateFileView.as_view(), name='api_file_create')
 ]

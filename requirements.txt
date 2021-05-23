@@ -1,5 +1,5 @@
 # General
-django==3.2.2
+django==3.2.3
 django-redis==4.12.1
 psycopg2-binary==2.8.6
 daphne==3.0.2
@@ -10,8 +10,8 @@ django-menu-generator==1.1.0
 djangorestframework==3.12.4
 django-sql-utils==0.6.1
 django-lifecycle==0.9.1
-django-tree-queries==0.4.3
-PyJWT==2.0.1
+django-tree-queries==0.5.1
+PyJWT==2.1.0
 # Async tasks
 django-celery-results==2.0.1
 Celery==5.0.5
